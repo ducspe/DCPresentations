@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Watch tutorials and explore the slides for Understanding AlphaFold 2, Understanding Diffusion, and Understanding Tokenization.">
+  <title>DC Presentations — Slides &amp; video tutorials</title>
+  <style>
+    :root { color-scheme: light; --ink: #172d35; --muted: #4d6269; --accent: #166854; --line: #d9e2dd; --paper: #f5f7f3; }
+    * { box-sizing: border-box; }
+    html { scroll-padding-top: 2rem; }
+    body { margin: 0; background: var(--paper); color: var(--ink); font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; line-height: 1.65; }
+    a { color: var(--accent); text-underline-offset: .2em; }
+    a:hover { text-decoration-thickness: 2px; }
+    a:focus-visible, video:focus-visible { outline: 3px solid #a24b12; outline-offset: 5px; }
+    .skip { position: absolute; top: -5rem; left: 1rem; padding: .6rem 1rem; background: white; z-index: 1; }
+    .skip:focus { top: 1rem; }
+    .wrap { width: min(1180px, calc(100% - 3rem)); margin-inline: auto; }
+    .masthead { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
+    .brand { font-size: .85rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .repo-link { font-size: .9rem; }
+    .intro { padding-block: 3.4rem 2.5rem; max-width: 760px; }
+    .eyebrow { margin: 0 0 .75rem; color: var(--accent); font-size: .8rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+    h1 { margin: 0; font-size: clamp(2.1rem, 5vw, 3.65rem); line-height: 1.12; letter-spacing: -.045em; font-weight: 720; }
+    .intro p:last-child { max-width: 650px; margin: 1.2rem 0 0; color: var(--muted); font-size: 1.08rem; }
+    .topics { display: flex; flex-wrap: wrap; gap: .7rem; padding-bottom: 2.5rem; }
+    .topics a { border: 1px solid var(--line); background: white; padding: .55rem 1rem; border-radius: 2rem; text-decoration: none; font-size: .9rem; font-weight: 600; }
+    .topics a:hover { border-color: var(--accent); background: #edf3ee; }
+    main { display: grid; gap: 1.5rem; }
+    .tutorial { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.35fr); gap: 2rem; padding: 2rem; border: 1px solid var(--line); border-radius: 1rem; background: white; }
+    .date { margin: 0 0 .4rem; color: var(--muted); font-size: .82rem; }
+    h2 { margin: 0 0 .8rem; font-size: clamp(1.45rem, 2.5vw, 1.85rem); line-height: 1.2; letter-spacing: -.025em; }
+    .description { color: var(--muted); margin: 0 0 1.25rem; font-size: .95rem; }
+    .resources { display: flex; flex-wrap: wrap; gap: .6rem 1.15rem; list-style: none; padding: 0; margin: 0; font-size: .9rem; }
+    .resources a { display: inline-block; padding-block: .25rem; font-weight: 600; }
+    .player { align-self: center; min-width: 0; }
+    video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #111b20; border-radius: .55rem; }
+    .caption-note { margin: .65rem 0 0; color: var(--muted); font-size: .82rem; }
+    footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
+    footer p { margin: 0; }
+    @media (max-width: 800px) {
+      .tutorial { grid-template-columns: 1fr; gap: 1.3rem; padding: 1.5rem; }
+      .intro { padding-top: 2.5rem; }
+    }
+    @media (max-width: 420px) {
+      .wrap { width: calc(100% - 2rem); }
+      .masthead { align-items: flex-start; }
+      .brand { max-width: 9rem; }
+      .tutorial { padding: 1.1rem; }
+    }
+  </style>
+</head>
+<body>
+  <a class="skip" href="#tutorials">Skip to tutorials</a>
+  <div class="wrap">
+    <header>
+      <div class="masthead">
+        <span class="brand">DC Presentations</span>
+        <a class="repo-link" href="https://github.com/ducspe/DCPresentations">View repository ↗</a>
+      </div>
+      <div class="intro">
+        <p class="eyebrow">Watch · Read · Explore</p>
+        <h1>Understanding AI,<br>one topic at a time.</h1>
+        <p>Video tutorials and presentation slides on protein structure prediction, generative models, and the tokens behind language models.</p>
+      </div>
+      <nav class="topics" aria-label="Choose a topic">
+        <a href="#alphafold2">AlphaFold 2</a>
+        <a href="#diffusion">Diffusion</a>
+        <a href="#tokenization">Tokenization</a>
+      </nav>
+    </header>
+    <main id="tutorials">
+      <section class="tutorial" id="alphafold2" aria-labelledby="alphafold2-title">
+        <div>
+          <p class="date">June 2026</p>
+          <h2 id="alphafold2-title">Understanding AlphaFold 2</h2>
+          <p class="description">How biological and geometric knowledge shape a model that predicts protein structures. Explore the architecture, training, and insights from OpenFold.</p>
+          <ul class="resources" aria-label="AlphaFold 2 resources">
+            <li><a href="UnderstandingAlphaFold2/UnderstandingAlphaFold2.pdf">Read PDF</a></li>
+            <li><a href="UnderstandingAlphaFold2/UnderstandingAlphaFold2.pptx" download>PowerPoint</a></li>
+            <li><a href="UnderstandingAlphaFold2/UnderstandingAlphaFold2_VideoTutorial.mp4" download>Download MP4</a></li>
+          </ul>
+        </div>
+        <div class="player">
+          <video controls playsinline preload="metadata" aria-labelledby="alphafold2-title" aria-describedby="alphafold2-captions">
+            <source src="UnderstandingAlphaFold2/UnderstandingAlphaFold2_VideoTutorial.mp4" type="video/mp4">
+            Your browser cannot play this video. <a href="UnderstandingAlphaFold2/UnderstandingAlphaFold2_VideoTutorial.mp4">Download the MP4</a> to watch it in your video player.
+          </video>
+          <p class="caption-note" id="alphafold2-captions">Subtitles are embedded in the video; no separate subtitle file is needed.</p>
+        </div>
+      </section>
+      <section class="tutorial" id="diffusion" aria-labelledby="diffusion-title">
+        <div>
+          <p class="date">September 2026</p>
+          <h2 id="diffusion-title">Understanding Diffusion</h2>
+          <p class="description">Connect the mathematics of flow and diffusion models to their training algorithms, from probability paths and differential equations to flow matching and denoising score matching.</p>
+          <ul class="resources" aria-label="Diffusion resources">
+            <li><a href="UnderstandingDiffusion/UnderstandingDiffusion.pdf">Read PDF</a></li>
+            <li><a href="UnderstandingDiffusion/UnderstandingDiffusion.pptx" download>PowerPoint</a></li>
+            <li><a href="UnderstandingDiffusion/UnderstandingDiffusion_VideoTutorial.mp4" download>Download MP4</a></li>
+            <li><a href="UnderstandingDiffusion/UnderstandingDiffusion_Subtitles_EN.srt" download>English subtitles (SRT)</a></li>
+          </ul>
+        </div>
+        <div class="player">
+          <video controls playsinline preload="metadata" aria-labelledby="diffusion-title" aria-describedby="diffusion-captions">
+            <source src="UnderstandingDiffusion/UnderstandingDiffusion_VideoTutorial.mp4" type="video/mp4">
+            <track kind="subtitles" src="UnderstandingDiffusion/UnderstandingDiffusion_Subtitles_EN.vtt" srclang="en" label="English" default>
+            Your browser cannot play this video. <a href="UnderstandingDiffusion/UnderstandingDiffusion_VideoTutorial.mp4">Download the MP4</a> to watch it in your video player.
+          </video>
+          <p class="caption-note" id="diffusion-captions">English subtitles are available in the player’s captions menu.</p>
+        </div>
+      </section>
+      <section class="tutorial" id="tokenization" aria-labelledby="tokenization-title">
+        <div>
+          <p class="date">October 2026</p>
+          <h2 id="tokenization-title">Understanding Tokenization</h2>
+          <p class="description">How do language models see text? Explore byte pair encoding, UTF-8, regex boundaries, and special tokens—and why tokenization matters for numbers, languages, and code.</p>
+          <ul class="resources" aria-label="Tokenization resources">
+            <li><a href="UnderstandingTokenization/UnderstandingTokenization.pdf">Read PDF</a></li>
+            <li><a href="UnderstandingTokenization/UnderstandingTokenization.pptx" download>PowerPoint</a></li>
+            <li><a href="UnderstandingTokenization/UnderstandingTokenization_VideoTutorial.mp4" download>Download MP4</a></li>
+            <li><a href="UnderstandingTokenization/UnderstandingTokenization_Subtitles_EN.srt" download>English subtitles (SRT)</a></li>
+          </ul>
+        </div>
+        <div class="player">
+          <video controls playsinline preload="metadata" aria-labelledby="tokenization-title" aria-describedby="tokenization-captions">
+            <source src="UnderstandingTokenization/UnderstandingTokenization_VideoTutorial.mp4" type="video/mp4">
+            <track kind="subtitles" src="UnderstandingTokenization/UnderstandingTokenization_Subtitles_EN.vtt" srclang="en" label="English" default>
+            Your browser cannot play this video. <a href="UnderstandingTokenization/UnderstandingTokenization_VideoTutorial.mp4">Download the MP4</a> to watch it in your video player.
+          </video>
+          <p class="caption-note" id="tokenization-captions">English subtitles are available in the player’s captions menu.</p>
+        </div>
+      </section>
+    </main>
+    <footer>
+      <p>PowerPoint speaker notes include references and further reading.</p>
+      <a href="https://github.com/ducspe/DCPresentations">Browse all files on GitHub ↗</a>
+    </footer>
+  </div>
+</body>
+</html>

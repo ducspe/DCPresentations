@@ -36,6 +36,7 @@
     .player { align-self: center; min-width: 0; }
     video { display: block; width: 100%; aspect-ratio: 16 / 9; background: #111b20; border-radius: .55rem; }
     .caption-note { margin: .65rem 0 0; color: var(--muted); font-size: .82rem; }
+    .resources + .caption-note { color: #1d4ed8; font-weight: 600; }
     footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; margin-top: 2.5rem; padding-block: 1.5rem 2rem; border-top: 1px solid var(--line); color: var(--muted); font-size: .85rem; }
     footer p { margin: 0; }
     @media (max-width: 800px) {
@@ -100,7 +101,7 @@
             <li><a href="UnderstandingDiffusion/UnderstandingDiffusion_VideoTutorial.mp4" download>Download MP4</a></li>
             <li><a href="UnderstandingDiffusion/UnderstandingDiffusion_Subtitles_EN.srt" download>English subtitles (SRT)</a></li>
           </ul>
-          <p class="caption-note" id="diffusion-captions">Captions are off by default. To turn them on, select English in the video player’s captions menu.</p>
+          <p class="caption-note" id="diffusion-captions">English subtitles are available. Use the video player’s captions menu to turn them on or off.</p>
         </div>
         <div class="player">
           <video controls playsinline preload="metadata" aria-labelledby="diffusion-title" aria-describedby="diffusion-captions">
@@ -121,7 +122,7 @@
             <li><a href="UnderstandingTokenization/UnderstandingTokenization_VideoTutorial.mp4" download>Download MP4</a></li>
             <li><a href="UnderstandingTokenization/UnderstandingTokenization_Subtitles_EN.srt" download>English subtitles (SRT)</a></li>
           </ul>
-          <p class="caption-note" id="tokenization-captions">Captions are off by default. To turn them on, select English in the video player’s captions menu.</p>
+          <p class="caption-note" id="tokenization-captions">English subtitles are available. Use the video player’s captions menu to turn them on or off.</p>
         </div>
         <div class="player">
           <video controls playsinline preload="metadata" aria-labelledby="tokenization-title" aria-describedby="tokenization-captions">

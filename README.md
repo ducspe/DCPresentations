@@ -2,7 +2,7 @@
 
 This repository contains miscellaneous presentations on a variety of topics. PDFs can be viewed quickly in your browser. PowerPoint (PPTX) files must be downloaded to view; their speaker notes include paper references and other useful URLs related to the slide content, which are not visible in the PDF version.
 
-Video tutorials are also available as MP4 files. Where provided, English subtitles are linked as separate SRT files that you can load in your video player.
+**[Watch video tutorials online](https://ducspe.github.io/DCPresentations/)** in your browser. If you have trouble playing a video online, download the MP4 using the links below and open it in your preferred video player. Where provided, English subtitles are linked as separate SRT files that you can load in your video player.
 
 ## Current presentations
 

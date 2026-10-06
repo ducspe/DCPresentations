@@ -1,0 +1,3141 @@
+WEBVTT
+
+1
+00:00:01.200 --> 00:00:03.394
+Welcome to Understanding Diffusion.
+
+2
+00:00:03.554 --> 00:00:06.725
+This video walks through the
+slide deck of the same name.
+
+3
+00:00:06.885 --> 00:00:10.639
+It explains how flow models and
+diffusion models generate data,
+
+4
+00:00:10.639 --> 00:00:12.309
+and how they are trained.
+
+5
+00:00:12.829 --> 00:00:14.364
+There are three chapters.
+
+6
+00:00:14.524 --> 00:00:19.974
+Chapter one defines flow and diffusion models
+with the help of differential equations.
+
+7
+00:00:20.134 --> 00:00:22.841
+Chapter two constructs the training targets.
+
+8
+00:00:23.001 --> 00:00:26.568
+Chapter three turns those
+targets into training algorithms.
+
+9
+00:00:28.188 --> 00:00:30.737
+A short note on how to use this material.
+
+10
+00:00:30.897 --> 00:00:34.831
+The PowerPoint file has a notes
+section below some of the slides,
+
+11
+00:00:34.831 --> 00:00:37.310
+with exact page and figure references.
+
+12
+00:00:37.470 --> 00:00:40.059
+The general references
+are on the last slide.
+
+13
+00:00:40.579 --> 00:00:44.091
+Some slides are marked with a
+cherry in the top right corner.
+
+14
+00:00:44.251 --> 00:00:45.841
+These slides are optional.
+
+15
+00:00:46.001 --> 00:00:50.043
+They contain derivations for viewers
+who like to see the mathematics,
+
+16
+00:00:50.043 --> 00:00:53.035
+and two cherries mean an
+even deeper derivation.
+
+17
+00:00:53.195 --> 00:00:55.515
+You can skip them without losing the thread.
+
+18
+00:00:56.035 --> 00:01:00.409
+And if you find a mistake on the slides,
+the author will be grateful for a note.
+
+19
+00:01:02.029 --> 00:01:03.020
+Chapter one.
+
+20
+00:01:03.180 --> 00:01:08.449
+We define flow models and diffusion models
+through the lens of differential equations.
+
+21
+00:01:10.069 --> 00:01:13.653
+We begin with flow models, which
+are the deterministic case.
+
+22
+00:01:15.273 --> 00:01:20.065
+The goal of a generative model is to
+turn samples from a simple initial
+
+23
+00:01:20.065 --> 00:01:24.970
+distribution, p_init, into samples
+from the data distribution, p_data.
+
+24
+00:01:25.490 --> 00:01:29.449
+The initial distribution is
+something we can sample from easily.
+
+25
+00:01:29.609 --> 00:01:33.063
+Here it is a standard Gaussian,
+in other words pure noise.
+
+26
+00:01:33.223 --> 00:01:38.188
+The data distribution describes whatever
+we want to generate, for example images.
+
+27
+00:01:38.348 --> 00:01:41.049
+We only know it through
+examples, the training set.
+
+28
+00:01:42.669 --> 00:01:46.848
+To describe how noise is turned
+into data, we need a few concepts.
+
+29
+00:01:47.008 --> 00:01:48.853
+The first one is a trajectory.
+
+30
+00:01:49.013 --> 00:01:51.374
+A trajectory is a function of time.
+
+31
+00:01:51.534 --> 00:01:57.230
+For every time t between zero and one, it
+gives a point X_t in d-dimensional space.
+
+32
+00:01:57.390 --> 00:02:01.351
+Think of a particle moving through
+space, as in the plot on the right.
+
+33
+00:02:02.971 --> 00:02:05.417
+The second concept is a vector field.
+
+34
+00:02:05.577 --> 00:02:10.182
+A vector field takes a location x
+and a time t, and returns a vector.
+
+35
+00:02:10.702 --> 00:02:13.134
+You can read that vector as a velocity.
+
+36
+00:02:13.294 --> 00:02:19.581
+It tells a particle that sits at location x at
+time t in which direction to move, and how fast.
+
+37
+00:02:19.741 --> 00:02:22.057
+The arrows on the right show such a field.
+
+38
+00:02:23.677 --> 00:02:28.908
+A trajectory and a vector field are tied
+together by an ordinary differential
+
+39
+00:02:28.908 --> 00:02:30.923
+equation, or ODE for short.
+
+40
+00:02:31.083 --> 00:02:32.566
+It has two ingredients.
+
+41
+00:02:32.726 --> 00:02:36.893
+First, an initial condition, which
+says where the trajectory starts.
+
+42
+00:02:37.413 --> 00:02:44.839
+Second, the equation itself: the time derivative
+of X_t equals the vector field, evaluated at X_t.
+
+43
+00:02:44.999 --> 00:02:49.508
+In words, the particle always moves
+with the velocity that the vector field
+
+44
+00:02:49.508 --> 00:02:51.792
+prescribes at its current position.
+
+45
+00:02:52.312 --> 00:02:55.481
+You will also see this
+written in differential form,
+
+46
+00:02:55.481 --> 00:02:58.342
+with d X_t on the left and d t on the right.
+
+47
+00:02:58.502 --> 00:03:01.564
+That notation becomes
+useful once we add noise.
+
+48
+00:03:02.084 --> 00:03:06.192
+Also notice that the next state
+depends only on the current state.
+
+49
+00:03:06.352 --> 00:03:08.121
+The dynamics has no memory.
+
+50
+00:03:08.281 --> 00:03:10.298
+This is the Markov property.
+
+51
+00:03:11.918 --> 00:03:15.740
+For every starting point, the
+ODE has its own trajectory.
+
+52
+00:03:15.900 --> 00:03:19.598
+The flow collects all of them into
+a single function, called psi.
+
+53
+00:03:19.758 --> 00:03:25.212
+It takes a starting point x_0 and a time t,
+and returns the place that this starting
+
+54
+00:03:25.212 --> 00:03:27.274
+point has moved to by time t.
+
+55
+00:03:27.794 --> 00:03:32.846
+At time zero nothing has moved yet, so
+the flow at time zero is the identity.
+
+56
+00:03:33.006 --> 00:03:36.705
+And for a fixed starting point,
+the flow follows the ODE.
+
+57
+00:03:37.225 --> 00:03:41.230
+Intuitively, a flow warps space,
+a bit like stirring a liquid.
+
+58
+00:03:41.390 --> 00:03:46.994
+To build intuition, try the interactive
+visualization linked at the bottom of the slide.
+
+59
+00:03:48.614 --> 00:03:51.575
+Here is why flows matter
+for generative modeling.
+
+60
+00:03:51.735 --> 00:03:54.230
+A flow does not only move single points.
+
+61
+00:03:54.390 --> 00:03:57.333
+If we apply it to every
+sample of a distribution,
+
+62
+00:03:57.333 --> 00:03:59.857
+it moves the whole probability density.
+
+63
+00:04:00.377 --> 00:04:06.749
+On the left, a noise sample X_0 is carried
+by the vector field to a data sample X_1.
+
+64
+00:04:07.269 --> 00:04:09.786
+On the right you see the
+same thing for densities.
+
+65
+00:04:09.946 --> 00:04:15.239
+The initial distribution, labeled p in
+this figure, is deformed step by step,
+
+66
+00:04:15.239 --> 00:04:20.919
+through intermediate distributions p_t,
+into the target distribution, labeled q.
+
+67
+00:04:22.539 --> 00:04:25.838
+Let us look at an example
+that can be solved by hand.
+
+68
+00:04:25.998 --> 00:04:30.632
+Take the linear vector field: u_t
+of x equals minus theta times x,
+
+69
+00:04:30.632 --> 00:04:33.269
+where theta is a positive constant.
+
+70
+00:04:33.429 --> 00:04:36.113
+The velocity always
+points toward the origin,
+
+71
+00:04:36.113 --> 00:04:38.739
+and it is larger the further away we are.
+
+72
+00:04:39.259 --> 00:04:43.803
+The claim is that the flow is
+x_0 times e to the minus theta t.
+
+73
+00:04:43.963 --> 00:04:49.265
+Every starting point decays exponentially
+toward zero, which is what the plot in the
+
+74
+00:04:49.265 --> 00:04:51.023
+lower right corner shows.
+
+75
+00:04:51.543 --> 00:04:55.534
+One caution about notation:
+here theta is just a constant.
+
+76
+00:04:55.694 --> 00:04:59.715
+Later the same letter will denote
+the parameters of a neural network.
+
+77
+00:05:01.335 --> 00:05:05.044
+This is the first optional slide,
+and it verifies the claim.
+
+78
+00:05:05.204 --> 00:05:07.766
+A flow has to satisfy two conditions.
+
+79
+00:05:07.926 --> 00:05:09.799
+First, the initial condition.
+
+80
+00:05:09.959 --> 00:05:14.316
+At time zero the exponential
+equals one, so we get x_0 back.
+
+81
+00:05:14.836 --> 00:05:16.408
+Second, the ODE.
+
+82
+00:05:16.568 --> 00:05:20.546
+We take the time derivative
+of the exponential times x_0.
+
+83
+00:05:20.706 --> 00:05:24.840
+The factor x_0 does not depend on
+time, so it can be pulled out.
+
+84
+00:05:25.360 --> 00:05:29.232
+The derivative of the exponential
+follows from the chain rule:
+
+85
+00:05:29.232 --> 00:05:32.222
+it is minus theta times
+the same exponential.
+
+86
+00:05:32.742 --> 00:05:36.705
+Collecting the terms, we get
+minus theta times the flow itself.
+
+87
+00:05:37.225 --> 00:05:41.669
+And that is exactly the vector field,
+evaluated at the current position.
+
+88
+00:05:41.829 --> 00:05:44.348
+So the claimed flow solves the ODE.
+
+89
+00:05:45.968 --> 00:05:49.309
+On a computer we cannot
+follow an ODE exactly.
+
+90
+00:05:49.469 --> 00:05:54.038
+We simulate it in small steps, and the
+simplest scheme is the Euler method.
+
+91
+00:05:54.198 --> 00:06:00.098
+Choose a number of steps n and a step size
+h equal to one over n, and start at x_0.
+
+92
+00:06:00.618 --> 00:06:05.794
+In every step, move a small distance h in
+the direction that the vector field gives
+
+93
+00:06:05.794 --> 00:06:08.967
+at the current point, and
+advance the time by h.
+
+94
+00:06:09.487 --> 00:06:13.723
+After n steps we arrive at time
+one, and we return the trajectory.
+
+95
+00:06:15.343 --> 00:06:17.228
+Where does the vector field come from?
+
+96
+00:06:17.388 --> 00:06:19.987
+In a flow model it is a neural network.
+
+97
+00:06:20.147 --> 00:06:25.479
+We want an ODE that carries p_init to
+p_data, and we let a network with parameters
+
+98
+00:06:25.479 --> 00:06:28.260
+theta play the role of the vector field.
+
+99
+00:06:28.780 --> 00:06:32.372
+The network takes a location
+x and a time t as input,
+
+100
+00:06:32.372 --> 00:06:35.806
+and returns a vector of
+the same dimension as x.
+
+101
+00:06:35.966 --> 00:06:40.901
+So for our purposes, a neural network
+is simply a parameterized vector field.
+
+102
+00:06:42.521 --> 00:06:44.719
+It is worth keeping two things apart.
+
+103
+00:06:44.879 --> 00:06:47.316
+The neural network is the vector field.
+
+104
+00:06:47.476 --> 00:06:52.362
+It gives the velocity, that is, the
+change to make at a given time and place.
+
+105
+00:06:52.882 --> 00:06:54.408
+The flow is something else.
+
+106
+00:06:54.568 --> 00:06:58.365
+It is the map from start to
+end that we obtain implicitly,
+
+107
+00:06:58.365 --> 00:07:01.490
+by simulating the ODE
+with that vector field.
+
+108
+00:07:01.650 --> 00:07:03.322
+We never write the flow down.
+
+109
+00:07:03.482 --> 00:07:04.932
+We only simulate it.
+
+110
+00:07:06.552 --> 00:07:08.863
+This gives the recipe for a flow model.
+
+111
+00:07:09.023 --> 00:07:12.870
+Draw a random starting point from
+p_init, the standard Gaussian.
+
+112
+00:07:13.030 --> 00:07:16.278
+Follow the vector field
+from time zero to time one.
+
+113
+00:07:16.438 --> 00:07:20.223
+And we want the end point X_1 to
+be distributed like the data.
+
+114
+00:07:20.743 --> 00:07:24.645
+Training means finding network
+parameters for which this is true.
+
+115
+00:07:24.805 --> 00:07:28.063
+How to do that is the subject
+of chapters two and three.
+
+116
+00:07:29.683 --> 00:07:31.336
+Next come diffusion models.
+
+117
+00:07:31.496 --> 00:07:33.598
+They add randomness to the dynamics.
+
+118
+00:07:35.218 --> 00:07:38.361
+For that we need the notion
+of a stochastic process.
+
+119
+00:07:38.521 --> 00:07:44.067
+A stochastic process is a collection of
+random variables X_t, indexed by time.
+
+120
+00:07:44.227 --> 00:07:49.030
+One realization of it is again a
+trajectory, also called a sample path.
+
+121
+00:07:49.550 --> 00:07:54.217
+But if we run the process a second time,
+we get a different path, as in the plot.
+
+122
+00:07:54.377 --> 00:07:58.488
+So we still map time to a point
+in space, as we did for flows,
+
+123
+00:07:58.488 --> 00:08:00.723
+but now with randomness on top.
+
+124
+00:08:02.343 --> 00:08:04.728
+A diffusion model has two ingredients.
+
+125
+00:08:04.888 --> 00:08:07.775
+The first is the vector field u, as before.
+
+126
+00:08:07.935 --> 00:08:12.482
+In this context it is called the drift,
+and it is the deterministic part.
+
+127
+00:08:13.002 --> 00:08:16.887
+The second ingredient is new:
+the diffusion coefficient sigma.
+
+128
+00:08:17.047 --> 00:08:23.662
+It assigns a non-negative number to each time t,
+and it controls how much randomness is injected.
+
+129
+00:08:25.282 --> 00:08:29.624
+Together they define a stochastic
+differential equation, or SDE.
+
+130
+00:08:29.784 --> 00:08:32.286
+As before, there is an initial condition.
+
+131
+00:08:32.806 --> 00:08:35.424
+The evolution equation now has two terms.
+
+132
+00:08:35.584 --> 00:08:39.940
+The first is the ODE part: move
+along the drift for a short time.
+
+133
+00:08:40.100 --> 00:08:44.380
+The second is noise: sigma times
+an increment of Brownian motion.
+
+134
+00:08:44.540 --> 00:08:47.833
+Brownian motion is also
+called the Wiener process,
+
+135
+00:08:47.833 --> 00:08:50.384
+which is why it is written with a W.
+
+136
+00:08:52.004 --> 00:08:53.710
+So what is Brownian motion?
+
+137
+00:08:53.870 --> 00:08:58.066
+It is a stochastic process W
+with three defining properties.
+
+138
+00:08:58.226 --> 00:08:59.901
+One: it starts at zero.
+
+139
+00:09:00.421 --> 00:09:02.407
+Two: its increments are Gaussian.
+
+140
+00:09:02.567 --> 00:09:09.097
+The change between an earlier time s and a later
+time t has mean zero and variance t minus s.
+
+141
+00:09:09.257 --> 00:09:11.550
+So the variance grows linearly in time.
+
+142
+00:09:12.070 --> 00:09:17.666
+Three: increments over time intervals that do
+not overlap are independent of each other.
+
+143
+00:09:18.186 --> 00:09:20.574
+In addition, its paths are continuous.
+
+144
+00:09:20.734 --> 00:09:25.824
+And as a side note, Brownian motion is a
+Gaussian process with a particular kernel.
+
+145
+00:09:25.984 --> 00:09:27.668
+We come back to that shortly.
+
+146
+00:09:29.288 --> 00:09:33.657
+Why is an SDE written with these
+d symbols instead of a derivative?
+
+147
+00:09:33.817 --> 00:09:37.914
+Because Brownian motion is continuous,
+but nowhere differentiable.
+
+148
+00:09:38.074 --> 00:09:40.965
+Its paths are too rough
+for a derivative to exist.
+
+149
+00:09:41.125 --> 00:09:44.273
+So we need a formulation
+that avoids derivatives.
+
+150
+00:09:44.793 --> 00:09:47.312
+To get there, look at the ODE once more.
+
+151
+00:09:47.472 --> 00:09:53.310
+The derivative is defined as a limit:
+the change of X over a small time step h,
+
+152
+00:09:53.310 --> 00:09:55.855
+divided by h, as h goes to zero.
+
+153
+00:09:56.375 --> 00:10:00.127
+Geometrically, that is the
+slope of the tangent at time t.
+
+154
+00:10:01.747 --> 00:10:05.605
+On this optional slide we
+rewrite the ODE without a limit.
+
+155
+00:10:05.765 --> 00:10:11.032
+For a finite step h, the difference quotient
+equals the vector field plus an error
+
+156
+00:10:11.032 --> 00:10:14.231
+term, and the error
+vanishes as h goes to zero.
+
+157
+00:10:14.751 --> 00:10:16.820
+Multiply both sides by h.
+
+158
+00:10:17.340 --> 00:10:19.313
+Then add X_t to both sides.
+
+159
+00:10:19.473 --> 00:10:22.169
+We arrive at the equation
+marked with a star.
+
+160
+00:10:22.329 --> 00:10:26.477
+The next point equals the current
+point, plus h times the velocity,
+
+161
+00:10:26.477 --> 00:10:27.834
+plus a small error.
+
+162
+00:10:27.994 --> 00:10:29.817
+No derivative appears in it.
+
+163
+00:10:31.437 --> 00:10:34.049
+The SDE is defined in the same way.
+
+164
+00:10:34.569 --> 00:10:40.292
+Take the star equation and add one more
+term: sigma times the Brownian increment
+
+165
+00:10:40.292 --> 00:10:42.832
+between time t and time t plus h.
+
+166
+00:10:42.992 --> 00:10:46.211
+That is the precise meaning of the d W term.
+
+167
+00:10:46.731 --> 00:10:52.052
+One technical detail: the error term is
+now random, so its convergence to zero is
+
+168
+00:10:52.052 --> 00:10:53.809
+measured in mean square.
+
+169
+00:10:55.429 --> 00:10:57.932
+How do we simulate such
+a Brownian increment?
+
+170
+00:10:58.092 --> 00:10:59.698
+We know its distribution.
+
+171
+00:10:59.858 --> 00:11:04.437
+Over a step of length h, it is Gaussian
+with mean zero and variance h.
+
+172
+00:11:04.957 --> 00:11:07.919
+And a Gaussian is easy to
+sample with a standard trick.
+
+173
+00:11:08.079 --> 00:11:11.168
+Draw epsilon from a standard
+normal distribution,
+
+174
+00:11:11.168 --> 00:11:13.869
+and multiply it by the square root of h.
+
+175
+00:11:14.029 --> 00:11:16.647
+The result has exactly the variance h.
+
+176
+00:11:17.167 --> 00:11:22.698
+More generally, to sample from a Gaussian
+with mean mu and standard deviation sigma,
+
+177
+00:11:22.698 --> 00:11:25.249
+compute mu plus sigma times epsilon.
+
+178
+00:11:25.769 --> 00:11:28.392
+This is called the reparameterization trick.
+
+179
+00:11:28.552 --> 00:11:33.310
+You may know it from variational autoencoders,
+and we will use it again and again.
+
+180
+00:11:34.930 --> 00:11:37.215
+With that we can simulate an SDE.
+
+181
+00:11:37.375 --> 00:11:42.999
+This is the Euler-Maruyama scheme, and it
+is the Euler method with one extra term.
+
+182
+00:11:43.519 --> 00:11:48.871
+In every step we draw fresh Gaussian noise
+epsilon, scale it by the square root of
+
+183
+00:11:48.871 --> 00:11:52.918
+the step size, multiply it by
+the diffusion coefficient sigma,
+
+184
+00:11:52.918 --> 00:11:55.382
+and add it to the usual Euler step.
+
+185
+00:11:57.002 --> 00:12:00.615
+So a diffusion model does
+the same job as a flow model.
+
+186
+00:12:00.775 --> 00:12:05.847
+It transports p_init to p_data,
+but with an SDE instead of an ODE.
+
+187
+00:12:06.367 --> 00:12:09.880
+The drift is again a neural
+network with parameters theta.
+
+188
+00:12:10.040 --> 00:12:13.494
+The new ingredient is the
+diffusion coefficient sigma.
+
+189
+00:12:15.114 --> 00:12:17.047
+Sigma is usually not learned.
+
+190
+00:12:17.207 --> 00:12:22.016
+We prescribe it, either as a constant
+or as a schedule that depends on time.
+
+191
+00:12:22.536 --> 00:12:26.942
+The sampling recipe is the same
+as before: start from p_init,
+
+192
+00:12:26.942 --> 00:12:30.661
+follow the SDE, and arrive
+at p_data at time one.
+
+193
+00:12:31.181 --> 00:12:32.246
+Two remarks.
+
+194
+00:12:32.406 --> 00:12:36.986
+If sigma is zero, the noise term vanishes
+and we are back at the flow model.
+
+195
+00:12:37.146 --> 00:12:40.552
+So a flow model is a special
+case of a diffusion model.
+
+196
+00:12:40.712 --> 00:12:45.156
+And a larger sigma means more
+exploration, but if it is too large,
+
+197
+00:12:45.156 --> 00:12:48.299
+the simulation becomes numerically unstable.
+
+198
+00:12:49.919 --> 00:12:53.475
+An optional remark for those
+who know Gaussian processes.
+
+199
+00:12:53.635 --> 00:12:59.226
+Brownian motion is a Gaussian process whose
+kernel is the minimum of the two time points.
+
+200
+00:12:59.386 --> 00:13:01.081
+This is called the Wiener kernel.
+
+201
+00:13:01.601 --> 00:13:06.864
+You can think of Brownian motion as the
+counterpart of the Gaussian distribution for
+
+202
+00:13:06.864 --> 00:13:08.359
+stochastic processes.
+
+203
+00:13:08.519 --> 00:13:13.207
+It is the basic building block for
+random processes with continuous paths,
+
+204
+00:13:13.207 --> 00:13:16.111
+even though these paths have no derivative.
+
+205
+00:13:16.631 --> 00:13:20.470
+All of this belongs to the wider
+theory of Markov processes,
+
+206
+00:13:20.470 --> 00:13:23.081
+which also covers processes that jump.
+
+207
+00:13:23.241 --> 00:13:24.714
+We do not need those here.
+
+208
+00:13:26.334 --> 00:13:27.388
+Chapter two.
+
+209
+00:13:27.548 --> 00:13:32.677
+From conditional to marginal, or from single
+data points to the full distribution.
+
+210
+00:13:32.837 --> 00:13:36.551
+This chapter answers one question:
+what should the network learn?
+
+211
+00:13:38.171 --> 00:13:39.956
+We begin with vector fields.
+
+212
+00:13:41.576 --> 00:13:46.561
+Neural networks are usually trained by
+minimizing a squared error between the output
+
+213
+00:13:46.561 --> 00:13:48.403
+of the network and a target.
+
+214
+00:13:48.563 --> 00:13:52.146
+In regression or classification,
+the target is the label.
+
+215
+00:13:52.666 --> 00:13:56.124
+Here we would like to compare the
+network with a target vector field.
+
+216
+00:13:56.284 --> 00:13:58.336
+But nobody gives us such a target.
+
+217
+00:13:58.496 --> 00:14:00.999
+We have data points, not velocities.
+
+218
+00:14:01.159 --> 00:14:04.327
+So the first task is to
+derive a training target:
+
+219
+00:14:04.327 --> 00:14:07.222
+a vector field that carries noise to data.
+
+220
+00:14:08.842 --> 00:14:13.123
+First some terminology, because these
+terms will come up again and again.
+
+221
+00:14:13.283 --> 00:14:16.647
+The marginal vector field is
+what flow matching learns.
+
+222
+00:14:16.807 --> 00:14:20.350
+The marginal score function is
+what score matching learns.
+
+223
+00:14:20.870 --> 00:14:23.548
+And each object exists in two versions.
+
+224
+00:14:23.708 --> 00:14:26.723
+Conditional means: for
+one single data point.
+
+225
+00:14:26.883 --> 00:14:30.968
+Marginal means: across the whole
+distribution of data points.
+
+226
+00:14:32.588 --> 00:14:37.077
+This table summarizes the whole chapter,
+and you may want to come back to it later.
+
+227
+00:14:37.237 --> 00:14:38.715
+There are six objects.
+
+228
+00:14:38.875 --> 00:14:43.302
+The rows are the probability path, the
+vector field and the score function.
+
+229
+00:14:43.462 --> 00:14:45.933
+The columns are conditional and marginal.
+
+230
+00:14:46.453 --> 00:14:48.515
+Everything on the left is tractable.
+
+231
+00:14:48.675 --> 00:14:51.506
+There is a closed formula
+that we can evaluate.
+
+232
+00:14:52.026 --> 00:14:56.968
+Everything on the right involves an
+integral over the entire data distribution,
+
+233
+00:14:56.968 --> 00:14:59.212
+and cannot be evaluated directly.
+
+234
+00:14:59.732 --> 00:15:03.419
+The rest of the chapter goes
+through these six cells one by one.
+
+235
+00:15:05.039 --> 00:15:07.099
+We start with the conditional setup.
+
+236
+00:15:07.259 --> 00:15:12.553
+Pick one single data point z, and ask how
+to get from noise to exactly that point.
+
+237
+00:15:13.073 --> 00:15:18.660
+A conditional probability path is a family
+of distributions, one for each time t.
+
+238
+00:15:18.820 --> 00:15:23.718
+At time zero it is the initial distribution,
+the broad Gaussian on the left.
+
+239
+00:15:23.878 --> 00:15:27.788
+At time one it is concentrated
+entirely on the point z,
+
+240
+00:15:27.788 --> 00:15:30.598
+which is called a Dirac distribution.
+
+241
+00:15:30.758 --> 00:15:32.767
+In between, it interpolates.
+
+242
+00:15:34.387 --> 00:15:37.545
+The standard choice is the
+Gaussian probability path.
+
+243
+00:15:37.705 --> 00:15:42.959
+At time t it is a Gaussian with mean alpha
+times z, and standard deviation beta.
+
+244
+00:15:43.479 --> 00:15:46.221
+Alpha and beta are called noise schedulers.
+
+245
+00:15:46.381 --> 00:15:51.632
+They are functions of time with fixed
+boundary values: alpha goes from zero to one,
+
+246
+00:15:51.632 --> 00:15:53.773
+and beta goes from one to zero.
+
+247
+00:15:54.293 --> 00:15:59.601
+The most common example is the linear one,
+alpha equal to t and beta equal to one
+
+248
+00:15:59.601 --> 00:16:02.337
+minus t, which is plotted on the right.
+
+249
+00:16:03.957 --> 00:16:06.283
+Let us check that this
+path does what we want.
+
+250
+00:16:06.443 --> 00:16:09.678
+At time zero, alpha is zero and beta is one.
+
+251
+00:16:09.838 --> 00:16:15.467
+The mean is zero and the variance is one, so we
+have the standard Gaussian, which is p_init.
+
+252
+00:16:15.987 --> 00:16:18.975
+At time one, alpha is one and beta is zero.
+
+253
+00:16:19.135 --> 00:16:21.691
+The mean is z and the variance is zero.
+
+254
+00:16:21.851 --> 00:16:24.676
+All the probability mass
+sits on the point z.
+
+255
+00:16:25.196 --> 00:16:29.862
+In between, the mean moves toward z
+while the variance shrinks step by step.
+
+256
+00:16:31.482 --> 00:16:34.268
+Now we go from one data
+point to all of them.
+
+257
+00:16:34.428 --> 00:16:39.490
+The marginal probability path is obtained
+by averaging the conditional paths over
+
+258
+00:16:39.490 --> 00:16:41.045
+the data distribution.
+
+259
+00:16:41.565 --> 00:16:46.656
+In the formula: take the conditional path
+for a data point z, weight it by how
+
+260
+00:16:46.656 --> 00:16:51.471
+likely that z is under the data
+distribution, and integrate over all z.
+
+261
+00:16:51.991 --> 00:16:54.496
+Sampling from the marginal path is easy.
+
+262
+00:16:54.656 --> 00:16:59.096
+Draw a data point z, then draw x from
+the conditional path for that z.
+
+263
+00:16:59.256 --> 00:17:02.650
+Evaluating its density is
+hard, because of the integral.
+
+264
+00:17:03.170 --> 00:17:05.886
+The marginal path connects noise and data.
+
+265
+00:17:06.046 --> 00:17:10.697
+At time zero it equals p_init,
+and at time one it equals p_data.
+
+266
+00:17:12.317 --> 00:17:16.280
+Next we need a vector field that
+belongs to the conditional path.
+
+267
+00:17:16.440 --> 00:17:20.175
+The conditional vector field
+is defined by one requirement.
+
+268
+00:17:20.695 --> 00:17:25.847
+If we draw a starting point from p_init
+and follow the ODE with this vector field,
+
+269
+00:17:25.847 --> 00:17:31.368
+then at every time t the point must be
+distributed according to the conditional path.
+
+270
+00:17:31.528 --> 00:17:35.752
+In short: the conditional vector
+field generates the conditional path.
+
+271
+00:17:35.912 --> 00:17:39.804
+It carries the noise distribution
+onto the single data point z.
+
+272
+00:17:41.424 --> 00:17:45.720
+For the Gaussian path, this vector field
+can be written down in closed form.
+
+273
+00:17:45.880 --> 00:17:48.791
+It may look complicated,
+but look at its structure.
+
+274
+00:17:49.311 --> 00:17:52.500
+Alpha and beta are functions
+that we chose ourselves,
+
+275
+00:17:52.500 --> 00:17:55.087
+and the dots are their time derivatives.
+
+276
+00:17:55.247 --> 00:17:59.068
+So the two coefficients are just
+numbers that depend on time.
+
+277
+00:17:59.228 --> 00:18:05.181
+The conditional vector field is a weighted sum
+of the data point z and the current location x.
+
+278
+00:18:06.801 --> 00:18:08.110
+Here is the picture.
+
+279
+00:18:08.270 --> 00:18:11.144
+The arrows are the Gaussian
+conditional vector field.
+
+280
+00:18:11.304 --> 00:18:15.064
+The circles are the Gaussian
+conditional path at different times.
+
+281
+00:18:15.584 --> 00:18:20.300
+If the samples follow the arrows, the
+cloud of samples contracts in exactly the
+
+282
+00:18:20.300 --> 00:18:25.257
+right way, from the broad Gaussian on the
+left onto the data point on the right.
+
+283
+00:18:26.877 --> 00:18:29.869
+Now we do for vector fields
+what we did for paths,
+
+284
+00:18:29.869 --> 00:18:32.203
+and go from conditional to marginal.
+
+285
+00:18:32.363 --> 00:18:37.424
+The marginal vector field is again an
+average of the conditional vector fields over
+
+286
+00:18:37.424 --> 00:18:38.579
+the data points.
+
+287
+00:18:38.739 --> 00:18:40.357
+But the weight is different.
+
+288
+00:18:40.517 --> 00:18:42.966
+It is not simply the data distribution.
+
+289
+00:18:43.486 --> 00:18:44.969
+Look at the dashed box.
+
+290
+00:18:45.129 --> 00:18:50.786
+In the numerator we have the likelihood of
+x given z, times the prior p_data of z.
+
+291
+00:18:50.946 --> 00:18:54.204
+In the denominator, the
+marginal density at x.
+
+292
+00:18:54.364 --> 00:18:59.785
+By Bayes' rule, this ratio is the posterior:
+the probability of the data point z,
+
+293
+00:18:59.785 --> 00:19:03.043
+given that we are currently
+at the location x.
+
+294
+00:19:03.563 --> 00:19:07.199
+This construction is known as
+the marginalization trick.
+
+295
+00:19:08.819 --> 00:19:14.047
+So intuitively, the marginal vector field
+at a location x is a weighted average of
+
+296
+00:19:14.047 --> 00:19:19.339
+the conditional vector fields of all data
+points, and the weight of each data point
+
+297
+00:19:19.339 --> 00:19:21.368
+is its posterior probability.
+
+298
+00:19:21.888 --> 00:19:28.005
+Data points that plausibly explain the current
+location x have a strong say in where to go next.
+
+299
+00:19:28.165 --> 00:19:30.375
+Data points that do not are ignored.
+
+300
+00:19:30.895 --> 00:19:35.521
+And here is the key property, which is
+proved on the optional slides that follow.
+
+301
+00:19:35.681 --> 00:19:39.272
+The marginal vector field
+generates the marginal path.
+
+302
+00:19:39.432 --> 00:19:42.050
+So following it carries p_init to p_data.
+
+303
+00:19:43.670 --> 00:19:45.776
+Here is how to read that posterior.
+
+304
+00:19:45.936 --> 00:19:51.430
+The sketch shows the two directions between
+a data point z and a noisy location x.
+
+305
+00:19:51.950 --> 00:19:57.442
+The likelihood goes forward: start from a data
+point and ask where its noisy version lands.
+
+306
+00:19:57.602 --> 00:20:01.215
+The posterior goes backward: we
+are standing at some location x,
+
+307
+00:20:01.215 --> 00:20:04.555
+and we ask which data points
+could have brought us here.
+
+308
+00:20:05.075 --> 00:20:07.891
+The marginal vector field does exactly this.
+
+309
+00:20:08.051 --> 00:20:13.316
+At x, it looks back at all candidate data
+points, takes the velocity that each of
+
+310
+00:20:13.316 --> 00:20:16.876
+them would prescribe, and
+averages those velocities.
+
+311
+00:20:17.036 --> 00:20:21.322
+Each one is weighted by how plausible
+that data point is, given x.
+
+312
+00:20:21.842 --> 00:20:25.233
+An integral with a probability
+weight is an expectation.
+
+313
+00:20:25.393 --> 00:20:30.888
+So the marginal vector field is the expected
+conditional vector field under the posterior.
+
+314
+00:20:32.508 --> 00:20:34.587
+Here is the practical takeaway.
+
+315
+00:20:34.747 --> 00:20:38.631
+We never solve the problem for the
+whole data distribution directly.
+
+316
+00:20:38.791 --> 00:20:42.870
+We solve it one data point at a time,
+and that turns out to be enough.
+
+317
+00:20:43.390 --> 00:20:49.644
+Generating single data points is a proxy
+for generating the full distribution p_data.
+
+318
+00:20:49.804 --> 00:20:54.278
+Keep this in mind for the practical
+session, because this is exactly what the
+
+319
+00:20:54.278 --> 00:20:55.563
+training code does.
+
+320
+00:20:57.183 --> 00:20:59.348
+One more remark before we go on.
+
+321
+00:20:59.508 --> 00:21:04.054
+There are infinitely many ways to move
+probability mass from noise to data.
+
+322
+00:21:04.214 --> 00:21:08.638
+Earlier generative models were trained
+without saying anything about what the
+
+323
+00:21:08.638 --> 00:21:11.173
+distribution should look like in between.
+
+324
+00:21:11.693 --> 00:21:17.795
+A key idea of diffusion and flow models is
+to fix the intermediate path p_t in advance.
+
+325
+00:21:17.955 --> 00:21:22.448
+Once the path is fixed, training
+becomes a simple regression problem,
+
+326
+00:21:22.448 --> 00:21:25.167
+and that scales to very large datasets.
+
+327
+00:21:26.787 --> 00:21:30.229
+This is one of the optional,
+more mathematical slides.
+
+328
+00:21:30.389 --> 00:21:35.977
+We claimed that following the marginal vector
+field makes the samples follow the marginal path.
+
+329
+00:21:36.137 --> 00:21:39.372
+The tool for proving this
+is the continuity equation.
+
+330
+00:21:39.892 --> 00:21:44.407
+Take an ODE with a random
+start, X_0 drawn from p_init.
+
+331
+00:21:44.927 --> 00:21:50.245
+Then the statement that X_t is distributed
+according to p_t, for every time between
+
+332
+00:21:50.245 --> 00:21:54.462
+zero and one, is equivalent to
+a partial differential equation.
+
+333
+00:21:54.622 --> 00:22:01.172
+The time derivative of the density at x
+equals minus the divergence of p_t times u_t.
+
+334
+00:22:01.692 --> 00:22:06.395
+At the bottom you see the definition of
+the divergence: for each coordinate, take
+
+335
+00:22:06.395 --> 00:22:11.104
+the partial derivative of that component
+of the vector field, and add them up.
+
+336
+00:22:12.724 --> 00:22:15.470
+The intuition is conservation of mass.
+
+337
+00:22:15.630 --> 00:22:18.252
+Look at the small box
+around x in the sketch.
+
+338
+00:22:18.412 --> 00:22:22.359
+The vector field carries probability
+mass into the box and out of it.
+
+339
+00:22:22.879 --> 00:22:28.162
+The divergence measures the net outflow,
+so minus the divergence is the net inflow.
+
+340
+00:22:28.322 --> 00:22:33.793
+The continuity equation says that the
+density at x changes by exactly what flows in
+
+341
+00:22:33.793 --> 00:22:35.357
+minus what flows out.
+
+342
+00:22:35.517 --> 00:22:38.426
+No mass is created and none is destroyed.
+
+343
+00:22:38.946 --> 00:22:44.443
+The equivalence holds in both directions, and
+in a moment we will use it from right to left.
+
+344
+00:22:46.063 --> 00:22:47.789
+Here is the plan for the proof.
+
+345
+00:22:47.949 --> 00:22:53.069
+We want to show that samples which follow
+the marginal vector field are distributed
+
+346
+00:22:53.069 --> 00:22:55.408
+according to the marginal path p_t.
+
+347
+00:22:55.928 --> 00:23:00.813
+By the equivalence from the previous slide, it
+is enough to check the continuity equation.
+
+348
+00:23:00.973 --> 00:23:06.373
+So we start from the time derivative of
+p_t, and we show that it equals minus the
+
+349
+00:23:06.373 --> 00:23:09.886
+divergence of p_t times
+the marginal vector field.
+
+350
+00:23:10.406 --> 00:23:13.652
+Once that is done, the
+equivalence gives us the result.
+
+351
+00:23:13.812 --> 00:23:17.168
+If we go with the flow, we
+follow the probability path.
+
+352
+00:23:18.788 --> 00:23:23.690
+In line one, we write the marginal
+density as the integral of the conditional
+
+353
+00:23:23.690 --> 00:23:26.290
+density against the data distribution.
+
+354
+00:23:26.810 --> 00:23:30.667
+In line two, we move the time
+derivative inside the integral.
+
+355
+00:23:30.827 --> 00:23:33.815
+Only the conditional
+density depends on time.
+
+356
+00:23:34.335 --> 00:23:36.103
+Line three is the key step.
+
+357
+00:23:36.263 --> 00:23:41.616
+For each fixed data point z, the conditional
+vector field generates the conditional path.
+
+358
+00:23:41.776 --> 00:23:43.553
+That is how we constructed it.
+
+359
+00:23:43.713 --> 00:23:48.956
+So the continuity equation holds for the
+conditional objects, and we can replace the
+
+360
+00:23:48.956 --> 00:23:51.508
+time derivative by minus a divergence.
+
+361
+00:23:52.028 --> 00:23:56.359
+In line four, the divergence acts
+on x and the integral runs over z,
+
+362
+00:23:56.359 --> 00:23:59.086
+so the divergence can be pulled outside.
+
+363
+00:23:59.606 --> 00:24:03.506
+In line five, we multiply
+and divide by p_t of x.
+
+364
+00:24:03.666 --> 00:24:08.568
+The fraction in the red box is the
+posterior of z given x, by Bayes' rule.
+
+365
+00:24:09.088 --> 00:24:13.270
+And the integral that remains is
+exactly the marginal vector field.
+
+366
+00:24:13.430 --> 00:24:18.532
+So the marginal path and the marginal vector
+field satisfy the continuity equation,
+
+367
+00:24:18.532 --> 00:24:20.310
+which completes the proof.
+
+368
+00:24:21.930 --> 00:24:24.565
+So far everything was about vector fields.
+
+369
+00:24:24.725 --> 00:24:28.876
+Now we tell the same story for a
+second object, the score function.
+
+370
+00:24:29.036 --> 00:24:32.144
+We need it as soon as we want
+to add noise during sampling.
+
+371
+00:24:33.764 --> 00:24:36.336
+The score is the gradient
+of the log density.
+
+372
+00:24:36.496 --> 00:24:40.401
+Whenever you see nabla log in a
+diffusion paper, think: score.
+
+373
+00:24:40.921 --> 00:24:44.152
+The gradient is taken with
+respect to the location x,
+
+374
+00:24:44.152 --> 00:24:46.954
+not with respect to the network parameters.
+
+375
+00:24:47.114 --> 00:24:50.050
+We drop that subscript to
+keep the notation light.
+
+376
+00:24:50.570 --> 00:24:55.498
+Intuitively, the score is a vector that
+points in the direction in which the density
+
+377
+00:24:55.498 --> 00:24:56.500
+grows fastest.
+
+378
+00:24:56.660 --> 00:25:01.461
+As with vector fields, there is a
+conditional score for a single data point z,
+
+379
+00:25:01.461 --> 00:25:04.595
+and a marginal score for
+the whole distribution.
+
+380
+00:25:06.215 --> 00:25:11.345
+The marginal score can be written in the
+same way as the marginal vector field:
+
+381
+00:25:11.345 --> 00:25:16.526
+an integral of the conditional score,
+weighted by the posterior of z given x.
+
+382
+00:25:17.046 --> 00:25:19.821
+To prove it we need one fact from calculus.
+
+383
+00:25:19.981 --> 00:25:24.366
+The derivative of the logarithm of a
+function is one over that function,
+
+384
+00:25:24.366 --> 00:25:26.800
+times the derivative of the function.
+
+385
+00:25:26.960 --> 00:25:28.421
+This is the chain rule.
+
+386
+00:25:28.941 --> 00:25:35.210
+Applied to the density, it says that the score
+equals the gradient of p_t divided by p_t.
+
+387
+00:25:35.370 --> 00:25:41.104
+Here nabla is the vector of partial derivatives
+with respect to each coordinate of x.
+
+388
+00:25:42.724 --> 00:25:43.975
+The proof is short.
+
+389
+00:25:44.135 --> 00:25:50.917
+Start with the identity from the last slide: the
+score is the gradient of p_t, divided by p_t.
+
+390
+00:25:51.437 --> 00:25:54.527
+In the numerator, replace
+p_t by its definition,
+
+391
+00:25:54.527 --> 00:25:57.539
+the integral over the conditional densities.
+
+392
+00:25:58.059 --> 00:26:01.806
+The gradient is with respect to
+x and the integral is over z,
+
+393
+00:26:01.806 --> 00:26:04.750
+so the gradient can move
+inside the integral.
+
+394
+00:26:05.270 --> 00:26:10.642
+Now use the same identity again, this time
+for the conditional density and read from
+
+395
+00:26:10.642 --> 00:26:11.717
+right to left.
+
+396
+00:26:11.877 --> 00:26:16.374
+The gradient of the conditional density
+is the conditional score times the
+
+397
+00:26:16.374 --> 00:26:17.769
+conditional density.
+
+398
+00:26:18.289 --> 00:26:19.735
+That gives the result.
+
+399
+00:26:19.895 --> 00:26:23.448
+The marginal score is the average
+of the conditional scores,
+
+400
+00:26:23.448 --> 00:26:25.168
+weighted by the posterior.
+
+401
+00:26:26.788 --> 00:26:31.362
+Put the two formulas next to each other, and
+you see that they have the same structure.
+
+402
+00:26:31.882 --> 00:26:36.361
+In both formulas the dashed box
+is the posterior of z given x.
+
+403
+00:26:36.521 --> 00:26:40.610
+And in both, we average a conditional
+object over all data points,
+
+404
+00:26:40.610 --> 00:26:42.897
+with that posterior as the weight.
+
+405
+00:26:43.417 --> 00:26:45.717
+At the top it is the conditional score.
+
+406
+00:26:45.877 --> 00:26:48.749
+At the bottom it is the
+conditional vector field.
+
+407
+00:26:48.909 --> 00:26:52.372
+So whatever we learn about one of
+them carries over to the other.
+
+408
+00:26:53.992 --> 00:26:56.071
+Why is the conditional score useful?
+
+409
+00:26:56.231 --> 00:26:59.018
+Because we design the
+conditional path ourselves,
+
+410
+00:26:59.018 --> 00:27:01.758
+we can work out its
+score with pen and paper.
+
+411
+00:27:02.278 --> 00:27:06.828
+Take the Gaussian path with mean
+alpha z and standard deviation beta.
+
+412
+00:27:06.988 --> 00:27:12.166
+Write down the logarithm of the Gaussian
+density and differentiate with respect to x.
+
+413
+00:27:12.326 --> 00:27:17.278
+What remains is minus, x minus
+alpha z, divided by beta squared.
+
+414
+00:27:17.798 --> 00:27:22.719
+So the conditional score points from x back
+toward the mean, and it becomes stronger
+
+415
+00:27:22.719 --> 00:27:25.242
+as the noise level beta becomes smaller.
+
+416
+00:27:26.862 --> 00:27:28.943
+Now the reason we care about the score.
+
+417
+00:27:29.103 --> 00:27:34.585
+Suppose we have the marginal vector field,
+so that the ODE follows the path p_t.
+
+418
+00:27:34.745 --> 00:27:39.922
+Then we can add noise of any strength sigma
+to the dynamics and still follow exactly
+
+419
+00:27:39.922 --> 00:27:42.998
+the same path, as long
+as we correct the drift.
+
+420
+00:27:43.518 --> 00:27:45.870
+The first term is the old vector field.
+
+421
+00:27:46.390 --> 00:27:51.704
+The second term is the correction: sigma
+squared over two, times the marginal score.
+
+422
+00:27:52.224 --> 00:27:54.467
+The last term injects Brownian noise.
+
+423
+00:27:54.627 --> 00:27:59.025
+The noise spreads the samples out, and
+the score term pushes them back toward
+
+424
+00:27:59.025 --> 00:28:00.575
+regions of high density.
+
+425
+00:28:00.735 --> 00:28:04.010
+At the level of the distribution,
+the two effects cancel.
+
+426
+00:28:05.630 --> 00:28:10.550
+So the score is the correction term
+that turns an ODE into an SDE.
+
+427
+00:28:10.710 --> 00:28:13.258
+Training a flow model gives one sampler.
+
+428
+00:28:13.418 --> 00:28:18.757
+Adding noise on top gives a whole family
+of samplers, one for each choice of sigma,
+
+429
+00:28:18.757 --> 00:28:22.411
+and in theory they all produce
+the same distributions.
+
+430
+00:28:22.931 --> 00:28:26.015
+In practice many current
+models are pure flow models,
+
+431
+00:28:26.015 --> 00:28:28.058
+because that already works well.
+
+432
+00:28:28.218 --> 00:28:32.981
+But a trained network is never perfect,
+and some noise during sampling can change
+
+433
+00:28:32.981 --> 00:28:34.748
+the quality of the results.
+
+434
+00:28:34.908 --> 00:28:39.544
+So it can be worth trying a few noise levels
+and looking at which samples you like best.
+
+435
+00:28:41.164 --> 00:28:43.766
+Another optional slide, for completeness.
+
+436
+00:28:43.926 --> 00:28:49.459
+For an SDE, the continuity equation is
+replaced by the Fokker-Planck equation.
+
+437
+00:28:49.979 --> 00:28:54.333
+It contains the same transport
+term as before, plus one new term:
+
+438
+00:28:54.333 --> 00:28:58.466
+sigma squared over two, times
+the Laplacian of the density.
+
+439
+00:28:58.986 --> 00:29:02.878
+The Laplacian is the diffusion
+operator from the heat equation.
+
+440
+00:29:03.038 --> 00:29:07.689
+It smooths the density out, in the same way
+that heat spreads through a metal plate.
+
+441
+00:29:07.849 --> 00:29:13.236
+This is the equation you would use to prove
+the SDE result from the previous slides.
+
+442
+00:29:14.856 --> 00:29:15.914
+Chapter three.
+
+443
+00:29:16.074 --> 00:29:17.858
+We now know what the targets are.
+
+444
+00:29:18.018 --> 00:29:22.060
+This chapter turns them into training
+algorithms that you can implement.
+
+445
+00:29:23.680 --> 00:29:25.739
+Two targets give two algorithms.
+
+446
+00:29:25.899 --> 00:29:30.417
+Flow matching trains a network to
+approximate the marginal vector field.
+
+447
+00:29:30.577 --> 00:29:34.661
+Score matching trains a network to
+approximate the marginal score.
+
+448
+00:29:34.821 --> 00:29:36.471
+We start with flow matching.
+
+449
+00:29:38.091 --> 00:29:43.896
+The goal is to find parameters theta such that
+the network is close to the marginal vector field.
+
+450
+00:29:44.416 --> 00:29:49.565
+The natural loss is a mean squared error:
+the expected squared distance between the
+
+451
+00:29:49.565 --> 00:29:51.607
+network output and the target.
+
+452
+00:29:52.127 --> 00:29:55.233
+The expectation runs
+over three random draws.
+
+453
+00:29:55.393 --> 00:29:58.407
+A time t, uniform between zero and one.
+
+454
+00:29:58.567 --> 00:30:03.347
+A data point z from the dataset, which
+in code is simply the data loader.
+
+455
+00:30:03.507 --> 00:30:07.943
+And a noisy location x, drawn from
+the conditional path for that z.
+
+456
+00:30:09.563 --> 00:30:13.508
+This is the loss we would like to
+minimize, but we cannot compute it.
+
+457
+00:30:13.668 --> 00:30:15.807
+The problem is the target itself.
+
+458
+00:30:16.327 --> 00:30:20.810
+The marginal vector field is an integral
+over the whole data distribution,
+
+459
+00:30:20.810 --> 00:30:22.989
+with the posterior as the weight.
+
+460
+00:30:23.509 --> 00:30:28.750
+To evaluate it at a single location x, we
+would have to loop over the entire dataset.
+
+461
+00:30:28.910 --> 00:30:33.337
+With a hundred million images, and
+one such loop for every training step,
+
+462
+00:30:33.337 --> 00:30:34.851
+that is not realistic.
+
+463
+00:30:36.471 --> 00:30:38.412
+The fix looks almost too simple.
+
+464
+00:30:38.572 --> 00:30:41.833
+Replace the marginal target
+by the conditional target,
+
+465
+00:30:41.833 --> 00:30:44.851
+for the data point z that
+we have just sampled.
+
+466
+00:30:45.011 --> 00:30:47.667
+This is the conditional flow matching loss.
+
+467
+00:30:48.187 --> 00:30:52.943
+It is tractable, because we have a closed
+formula for the conditional vector field.
+
+468
+00:30:53.463 --> 00:30:55.519
+But is it the right thing to minimize?
+
+469
+00:30:55.679 --> 00:30:59.568
+The conditional vector field only
+knows about a single data point,
+
+470
+00:30:59.568 --> 00:31:02.459
+and we want a model of
+the whole distribution.
+
+471
+00:31:04.079 --> 00:31:05.405
+The answer is yes.
+
+472
+00:31:05.565 --> 00:31:11.065
+The theorem says that the conditional loss
+equals the marginal loss plus a constant C.
+
+473
+00:31:11.225 --> 00:31:16.048
+This constant is not negative, and it does
+not depend on the network parameters.
+
+474
+00:31:16.568 --> 00:31:18.298
+The plot shows what that means.
+
+475
+00:31:18.458 --> 00:31:22.184
+The two curves have the same
+shape, and one is shifted up by C.
+
+476
+00:31:22.344 --> 00:31:24.363
+The marginal loss can reach zero.
+
+477
+00:31:24.523 --> 00:31:29.305
+The conditional loss generally cannot,
+because the same location x can be reached
+
+478
+00:31:29.305 --> 00:31:33.499
+from many different data points, so
+the conditional target is noisy.
+
+479
+00:31:34.019 --> 00:31:36.566
+But we do not care about
+the value of the loss.
+
+480
+00:31:36.726 --> 00:31:39.997
+We care about where the minimum
+is, the point theta star,
+
+481
+00:31:39.997 --> 00:31:42.300
+and that is the same for both curves.
+
+482
+00:31:43.920 --> 00:31:45.557
+Two consequences follow.
+
+483
+00:31:45.717 --> 00:31:50.444
+First, the minimizer of the conditional
+loss is the marginal vector field.
+
+484
+00:31:50.604 --> 00:31:55.036
+If training were perfect, simulating
+the network would turn noise into data,
+
+485
+00:31:55.036 --> 00:31:56.906
+which was the goal all along.
+
+486
+00:31:57.426 --> 00:32:00.860
+Second, the gradients of the
+two losses are identical,
+
+487
+00:32:00.860 --> 00:32:03.775
+because the gradient of a constant is zero.
+
+488
+00:32:04.295 --> 00:32:09.254
+So stochastic gradient descent on the
+conditional loss is stochastic gradient
+
+489
+00:32:09.254 --> 00:32:11.301
+descent on the marginal loss.
+
+490
+00:32:11.461 --> 00:32:16.893
+Individual mini-batch updates are noisy, but
+on average they point in the same direction.
+
+491
+00:32:18.513 --> 00:32:20.879
+This gives the general training procedure.
+
+492
+00:32:21.039 --> 00:32:26.304
+For each mini-batch: sample a data point
+z, sample a time t, sample a noisy point x
+
+493
+00:32:26.304 --> 00:32:31.442
+from the conditional path, compute the
+squared difference between the network and
+
+494
+00:32:31.442 --> 00:32:34.730
+the conditional target,
+and take a gradient step.
+
+495
+00:32:35.250 --> 00:32:38.557
+Notice that the marginal
+vector field never appears.
+
+496
+00:32:38.717 --> 00:32:40.372
+It emerges implicitly.
+
+497
+00:32:40.532 --> 00:32:45.173
+Over many samples, the network sees
+different conditional targets at the same
+
+498
+00:32:45.173 --> 00:32:50.537
+location and has to compromise between them,
+and the best compromise is their average.
+
+499
+00:32:51.057 --> 00:32:54.875
+The network has two inputs,
+the time t and the location x.
+
+500
+00:32:55.035 --> 00:32:59.694
+It regresses toward individual data
+points, and in the long run it learns to
+
+501
+00:32:59.694 --> 00:33:01.529
+generate the whole dataset.
+
+502
+00:33:03.149 --> 00:33:05.847
+Let us make this concrete
+for the Gaussian path.
+
+503
+00:33:06.007 --> 00:33:08.498
+Both ingredients are design choices.
+
+504
+00:33:08.658 --> 00:33:13.877
+We choose the conditional path, a Gaussian
+with mean alpha z and standard deviation
+
+505
+00:33:13.877 --> 00:33:18.585
+beta, and we use the matching conditional
+vector field from chapter two.
+
+506
+00:33:19.105 --> 00:33:23.153
+Sampling from the path is easy
+with the reparameterization trick.
+
+507
+00:33:23.313 --> 00:33:29.406
+Draw standard Gaussian noise epsilon, and
+set x equal to alpha z plus beta epsilon.
+
+508
+00:33:29.566 --> 00:33:33.850
+The small plot shows the simplest
+schedule: alpha equal to t,
+
+509
+00:33:33.850 --> 00:33:36.138
+and beta equal to one minus t.
+
+510
+00:33:37.758 --> 00:33:41.588
+On this optional slide and the
+next one, we simplify the loss.
+
+511
+00:33:41.748 --> 00:33:46.167
+Start by writing the Gaussian
+conditional vector field inside the norm.
+
+512
+00:33:46.687 --> 00:33:50.833
+Then replace x everywhere by
+alpha z plus beta epsilon.
+
+513
+00:33:50.993 --> 00:33:54.400
+The expectation is now
+over time, data and noise.
+
+514
+00:33:54.920 --> 00:33:56.333
+Now multiply out.
+
+515
+00:33:56.493 --> 00:34:01.615
+The two terms with alpha z cancel each
+other, and in the last term beta cancels.
+
+516
+00:34:03.235 --> 00:34:09.236
+What is left is remarkably simple: the
+network evaluated at alpha z plus beta
+
+517
+00:34:09.236 --> 00:34:13.390
+epsilon, minus alpha dot
+z, minus beta dot epsilon.
+
+518
+00:34:13.550 --> 00:34:16.551
+A dot means the derivative
+with respect to time.
+
+519
+00:34:17.071 --> 00:34:21.439
+So the input of the network is a
+weighted combination of data and noise,
+
+520
+00:34:21.439 --> 00:34:26.535
+and the regression target is the same
+combination with the weights replaced by their
+
+521
+00:34:26.535 --> 00:34:27.746
+time derivatives.
+
+522
+00:34:27.906 --> 00:34:32.381
+That is simply the velocity of the
+point x as it moves along its path.
+
+523
+00:34:34.001 --> 00:34:39.645
+Now pick the simplest schedule: alpha
+equals t, and beta equals one minus t.
+
+524
+00:34:39.805 --> 00:34:42.635
+The time derivatives are one and minus one.
+
+525
+00:34:43.155 --> 00:34:45.110
+The loss becomes very concrete.
+
+526
+00:34:45.270 --> 00:34:50.473
+The input is t z plus one minus t times
+epsilon, a point on the straight line
+
+527
+00:34:50.473 --> 00:34:53.626
+between the noise sample and the data point.
+
+528
+00:34:53.786 --> 00:34:57.459
+The target is z minus
+epsilon, data minus noise.
+
+529
+00:34:57.979 --> 00:35:01.457
+This is known as the conditional
+optimal transport path,
+
+530
+00:35:01.457 --> 00:35:04.742
+and it is a very popular
+choice in current models.
+
+531
+00:35:06.362 --> 00:35:11.800
+Here is the picture, taken from the
+NeurIPS 2024 tutorial on flow matching.
+
+532
+00:35:11.960 --> 00:35:15.676
+A noise sample on the left, an
+image from the dataset on the right,
+
+533
+00:35:15.676 --> 00:35:17.686
+and a straight line between them.
+
+534
+00:35:17.846 --> 00:35:20.898
+At time t we have covered
+a fraction t of the line.
+
+535
+00:35:21.058 --> 00:35:25.424
+In our notation the noise sample
+is epsilon and the image is z.
+
+536
+00:35:27.044 --> 00:35:31.208
+And this is the complete training
+algorithm, short enough to memorize.
+
+537
+00:35:31.368 --> 00:35:34.498
+Sample a data point, a
+time and a noise vector.
+
+538
+00:35:34.658 --> 00:35:36.296
+Interpolate between them.
+
+539
+00:35:36.456 --> 00:35:39.202
+Ask the network to predict data minus noise.
+
+540
+00:35:39.722 --> 00:35:42.866
+Notice that the target is
+the same at all times t.
+
+541
+00:35:43.026 --> 00:35:46.497
+What changes is how much
+information the input carries.
+
+542
+00:35:46.657 --> 00:35:51.620
+Near time zero the input is almost pure
+noise and says very little about z.
+
+543
+00:35:51.780 --> 00:35:54.849
+Near time one it is almost
+the clean data point.
+
+544
+00:35:55.369 --> 00:35:58.933
+This is also why sampling
+has to proceed step by step.
+
+545
+00:35:59.093 --> 00:36:02.727
+The information is gained
+gradually along the trajectory.
+
+546
+00:36:04.347 --> 00:36:06.335
+Here is a physical way to see it.
+
+547
+00:36:06.495 --> 00:36:11.565
+In general, the target of conditional flow
+matching is a velocity, and it changes
+
+548
+00:36:11.565 --> 00:36:15.063
+along the path, like on the
+curved blue trajectories.
+
+549
+00:36:15.583 --> 00:36:18.153
+On the straight path the
+velocity is constant.
+
+550
+00:36:18.313 --> 00:36:21.385
+Velocity is displacement divided by time.
+
+551
+00:36:21.545 --> 00:36:25.345
+The displacement is z minus
+epsilon, the time is one,
+
+552
+00:36:25.345 --> 00:36:28.034
+so the velocity is z minus epsilon.
+
+553
+00:36:28.194 --> 00:36:30.653
+The network learns to predict velocities.
+
+554
+00:36:32.273 --> 00:36:36.512
+For those who want to see why the
+two losses differ only by a constant,
+
+555
+00:36:36.512 --> 00:36:38.603
+here is the proof in two slides.
+
+556
+00:36:38.763 --> 00:36:41.424
+Both losses are a squared
+norm of a difference.
+
+557
+00:36:41.944 --> 00:36:46.817
+A squared norm of a difference expands
+into three terms: the squared norm of the
+
+558
+00:36:46.817 --> 00:36:52.357
+first vector, minus twice the inner product,
+plus the squared norm of the second vector.
+
+559
+00:36:52.877 --> 00:36:54.769
+We apply this to both losses.
+
+560
+00:36:54.929 --> 00:36:57.466
+The first vector is the network output.
+
+561
+00:36:57.626 --> 00:37:03.156
+The second vector is the marginal target in one
+case and the conditional target in the other.
+
+562
+00:37:04.776 --> 00:37:08.217
+After expanding, compare
+the two losses term by term.
+
+563
+00:37:08.737 --> 00:37:12.146
+The first term is the squared
+norm of the network output.
+
+564
+00:37:12.306 --> 00:37:14.468
+It is identical in both losses.
+
+565
+00:37:14.988 --> 00:37:18.557
+The second term is the cross
+term, inside the dashed box.
+
+566
+00:37:18.717 --> 00:37:23.165
+One loss has the marginal target,
+the other has the conditional target.
+
+567
+00:37:23.325 --> 00:37:28.462
+In expectation the two are equal, because
+the marginal vector field is the posterior
+
+568
+00:37:28.462 --> 00:37:30.537
+average of the conditional one.
+
+569
+00:37:31.057 --> 00:37:34.551
+The third term contains only
+the targets, not the network,
+
+570
+00:37:34.551 --> 00:37:36.598
+so it does not depend on theta.
+
+571
+00:37:37.118 --> 00:37:41.312
+So the two losses can differ only
+in the third term, by a constant C.
+
+572
+00:37:41.472 --> 00:37:42.727
+That is the theorem.
+
+573
+00:37:44.347 --> 00:37:48.610
+Once the network is trained, sampling
+is the Euler method from chapter one,
+
+574
+00:37:48.610 --> 00:37:51.348
+with the trained network
+as the vector field.
+
+575
+00:37:51.508 --> 00:37:56.810
+Draw a starting point from p_init, take
+n small steps of size one over n in the
+
+576
+00:37:56.810 --> 00:38:01.017
+direction the network gives,
+and return the final point X_1.
+
+577
+00:38:01.537 --> 00:38:03.618
+Is a flow model deterministic?
+
+578
+00:38:03.778 --> 00:38:05.967
+Yes, apart from the starting point.
+
+579
+00:38:06.127 --> 00:38:11.379
+Once X_0 is drawn, the trajectory is fully
+determined, so there is a one-to-one map
+
+580
+00:38:11.379 --> 00:38:13.901
+from the initial noise to the output.
+
+581
+00:38:15.521 --> 00:38:17.183
+Now the second algorithm.
+
+582
+00:38:17.343 --> 00:38:24.639
+Remember that the marginal score lets us turn the
+ODE into an SDE with any diffusion coefficient.
+
+583
+00:38:25.159 --> 00:38:27.073
+To use that, we need the score.
+
+584
+00:38:27.233 --> 00:38:30.928
+So we train a second network,
+s theta, to approximate it.
+
+585
+00:38:31.448 --> 00:38:36.479
+As before, the ideal loss is a mean
+squared error against the marginal score.
+
+586
+00:38:36.639 --> 00:38:43.071
+And as before it is intractable, because the marginal
+score is an integral over the whole dataset.
+
+587
+00:38:44.691 --> 00:38:48.701
+And as before, we swap the marginal
+target for the conditional one.
+
+588
+00:38:48.861 --> 00:38:53.354
+You could call the result conditional
+score matching, but the established name is
+
+589
+00:38:53.354 --> 00:38:54.920
+denoising score matching.
+
+590
+00:38:55.440 --> 00:38:59.434
+It is tractable because the
+conditional score has a closed form.
+
+591
+00:38:59.594 --> 00:39:04.581
+For the Gaussian path it is minus,
+x minus alpha z, over beta squared.
+
+592
+00:39:06.201 --> 00:39:07.696
+The same theorem holds.
+
+593
+00:39:07.856 --> 00:39:13.079
+The denoising loss equals the score
+matching loss plus a non-negative constant.
+
+594
+00:39:13.239 --> 00:39:18.628
+So the minimizer is the marginal score, and
+the gradients of the two losses are the same.
+
+595
+00:39:20.248 --> 00:39:23.208
+The training loop mirrors
+the one for flow matching.
+
+596
+00:39:23.368 --> 00:39:26.276
+Sample a data point, a
+time and a noisy point,
+
+597
+00:39:26.276 --> 00:39:28.921
+and regress onto the conditional score.
+
+598
+00:39:29.081 --> 00:39:31.018
+This is the general version.
+
+599
+00:39:31.178 --> 00:39:33.704
+It becomes more concrete for Gaussian paths.
+
+600
+00:39:35.324 --> 00:39:38.064
+Plug the Gaussian conditional
+score into the loss.
+
+601
+00:39:38.584 --> 00:39:40.426
+The two minus signs combine.
+
+602
+00:39:40.586 --> 00:39:44.773
+We get the network plus, x minus
+alpha z, over beta squared.
+
+603
+00:39:45.293 --> 00:39:49.963
+Now reparameterize: x equals
+alpha z plus beta epsilon.
+
+604
+00:39:50.123 --> 00:39:55.019
+In the numerator alpha z cancels, and
+one factor of beta cancels as well.
+
+605
+00:39:55.539 --> 00:39:58.813
+The result is the network
+plus epsilon over beta.
+
+606
+00:39:58.973 --> 00:40:03.712
+In other words, the network has to predict
+the noise that was used to corrupt the
+
+607
+00:40:03.712 --> 00:40:05.940
+data point, up to a scaling factor.
+
+608
+00:40:06.100 --> 00:40:08.441
+That is where the word denoising comes from.
+
+609
+00:40:10.061 --> 00:40:15.208
+So the score network receives an
+interpolation between a data point and noise,
+
+610
+00:40:15.208 --> 00:40:19.017
+and it learns to predict
+minus epsilon divided by beta.
+
+611
+00:40:19.537 --> 00:40:20.527
+One warning.
+
+612
+00:40:20.687 --> 00:40:26.292
+Beta goes to zero as we approach the data
+at time one, and dividing by a very small
+
+613
+00:40:26.292 --> 00:40:29.444
+number makes this loss numerically unstable.
+
+614
+00:40:29.604 --> 00:40:34.680
+Many implementations therefore let the
+network predict the noise epsilon itself and
+
+615
+00:40:34.680 --> 00:40:36.634
+apply the scaling afterwards.
+
+616
+00:40:38.254 --> 00:40:41.518
+Here is the resulting algorithm
+for the Gaussian path.
+
+617
+00:40:41.678 --> 00:40:44.648
+It is the flow matching loop
+with a different target.
+
+618
+00:40:44.808 --> 00:40:50.353
+Sample data, time and noise, form the
+noisy point, and regress the network onto
+
+619
+00:40:50.353 --> 00:40:52.218
+minus epsilon over beta.
+
+620
+00:40:53.838 --> 00:40:55.579
+Let us put the pieces together.
+
+621
+00:40:55.739 --> 00:40:57.237
+We start from p_init.
+
+622
+00:40:57.397 --> 00:41:03.371
+The exact SDE uses the true marginal
+vector field and the true marginal score.
+
+623
+00:41:03.891 --> 00:41:06.208
+We replace both by the trained networks.
+
+624
+00:41:06.728 --> 00:41:10.074
+If training went well, the
+samples follow the path p_t,
+
+625
+00:41:10.074 --> 00:41:13.357
+and at time one they are
+distributed like the data.
+
+626
+00:41:14.977 --> 00:41:16.722
+A word on terminology.
+
+627
+00:41:16.882 --> 00:41:22.014
+A denoising diffusion model is a diffusion
+model with a Gaussian probability path.
+
+628
+00:41:22.174 --> 00:41:26.262
+Most people drop the word denoising
+and simply say diffusion model.
+
+629
+00:41:26.782 --> 00:41:30.866
+These models have a special property:
+the score and the vector field can be
+
+630
+00:41:30.866 --> 00:41:32.462
+converted into each other.
+
+631
+00:41:32.982 --> 00:41:38.254
+Many diffusion models use score matching
+and rely on Gaussian conditional paths.
+
+632
+00:41:38.414 --> 00:41:42.138
+For those models, a trained score
+network is all that is needed.
+
+633
+00:41:43.758 --> 00:41:45.809
+Here is why the conversion works.
+
+634
+00:41:45.969 --> 00:41:51.184
+For the Gaussian path, the conditional
+vector field is a linear combination of the
+
+635
+00:41:51.184 --> 00:41:53.399
+data point z and the location x.
+
+636
+00:41:53.559 --> 00:41:55.906
+The coefficients depend only on time.
+
+637
+00:41:57.526 --> 00:41:59.985
+The conditional score has the same form.
+
+638
+00:42:00.145 --> 00:42:06.442
+Split the fraction, and you get one coefficient
+multiplying z and another one multiplying x.
+
+639
+00:42:06.602 --> 00:42:12.475
+Again a linear combination of z and x, with
+coefficients that depend only on time.
+
+640
+00:42:14.095 --> 00:42:18.557
+The coefficients in the two formulas are
+different, but that is not the point.
+
+641
+00:42:18.717 --> 00:42:21.909
+The point is that both
+objects are linear in x and z.
+
+642
+00:42:22.069 --> 00:42:25.857
+So we can solve one formula for
+z, substitute it into the other,
+
+643
+00:42:25.857 --> 00:42:28.819
+and express the vector
+field through the score.
+
+644
+00:42:29.339 --> 00:42:31.610
+The result is the formula in the middle.
+
+645
+00:42:31.770 --> 00:42:37.212
+The conditional vector field equals a
+time-dependent factor times the conditional
+
+646
+00:42:37.212 --> 00:42:40.214
+score, plus alpha dot over alpha, times x.
+
+647
+00:42:40.734 --> 00:42:43.038
+Train one, and you get the other for free.
+
+648
+00:42:44.658 --> 00:42:48.375
+The same relation holds
+after marginalizing over z.
+
+649
+00:42:48.535 --> 00:42:51.773
+Averaging with the posterior
+is a linear operation,
+
+650
+00:42:51.773 --> 00:42:54.493
+and the coefficients do not depend on z.
+
+651
+00:42:55.013 --> 00:42:57.861
+For the networks this means
+that one of them is enough.
+
+652
+00:42:58.021 --> 00:43:02.655
+Train a score network and compute the vector
+field from it, or the other way round.
+
+653
+00:43:03.175 --> 00:43:07.348
+And once more: the code only ever
+uses the conditional formulas.
+
+654
+00:43:07.508 --> 00:43:12.600
+The marginal objects appear implicitly,
+through averaging over a large dataset.
+
+655
+00:43:14.220 --> 00:43:15.826
+Three closing remarks.
+
+656
+00:43:15.986 --> 00:43:17.725
+First, time conventions.
+
+657
+00:43:17.885 --> 00:43:21.338
+Here, noise sits at time
+zero and data at time one.
+
+658
+00:43:21.498 --> 00:43:25.414
+Much of the diffusion literature
+uses the opposite convention,
+
+659
+00:43:25.414 --> 00:43:28.120
+so check this whenever you read a paper.
+
+660
+00:43:28.640 --> 00:43:29.843
+Second, history.
+
+661
+00:43:30.003 --> 00:43:35.911
+Diffusion models were first described as
+discrete chains of noising and denoising steps.
+
+662
+00:43:36.071 --> 00:43:40.208
+This tutorial used the continuous
+view with differential equations,
+
+663
+00:43:40.208 --> 00:43:43.785
+which is more compact and
+covers flow matching as well.
+
+664
+00:43:44.305 --> 00:43:48.363
+Third, the starting distribution
+does not have to be Gaussian noise.
+
+665
+00:43:48.523 --> 00:43:53.994
+The framework can transport one distribution
+into another: video without sound into
+
+666
+00:43:53.994 --> 00:43:59.202
+video with sound, low resolution data
+into high resolution data, or a partially
+
+667
+00:43:59.202 --> 00:44:01.821
+hidden scene into the complete scene.
+
+668
+00:44:03.441 --> 00:44:08.940
+The deck builds on the MIT course on
+flow matching and diffusion models,
+
+669
+00:44:08.940 --> 00:44:14.057
+in its 2025 and 2026 editions, on
+the lecture notes of that course,
+
+670
+00:44:14.057 --> 00:44:18.056
+and on the NeurIPS 2024
+tutorial on flow matching.
+
+671
+00:44:18.216 --> 00:44:22.743
+All links are on this slide, together
+with a code library and an interactive
+
+672
+00:44:22.743 --> 00:44:25.305
+visualization that is well worth trying.
+
+673
+00:44:26.925 --> 00:44:30.965
+A fourth chapter, on conditional
+generation, guidance and prompts,
+
+674
+00:44:30.965 --> 00:44:32.614
+is still in preparation.
+
+675
+00:44:32.774 --> 00:44:34.236
+Thank you for watching.

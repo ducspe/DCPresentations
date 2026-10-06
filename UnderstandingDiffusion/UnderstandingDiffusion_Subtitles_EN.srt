@@ -2930,209 +2930,210 @@ the score and the vector field can be
 converted into each other.
 
 631
-00:41:32,982 --> 00:41:34,934
-This also explains some history.
+00:41:32,982 --> 00:41:38,254
+Many diffusion models use score matching
+and rely on Gaussian conditional paths.
 
 632
-00:41:35,094 --> 00:41:39,009
-The first generation of diffusion
-models used only score matching,
+00:41:38,414 --> 00:41:42,138
+For those models, a trained score
+network is all that is needed.
 
 633
-00:41:39,009 --> 00:41:42,867
-and that was enough, because they
-relied on the Gaussian path.
-
-634
-00:41:44,487 --> 00:41:46,538
+00:41:43,758 --> 00:41:45,809
 Here is why the conversion works.
 
-635
-00:41:46,698 --> 00:41:51,913
+634
+00:41:45,969 --> 00:41:51,184
 For the Gaussian path, the conditional
 vector field is a linear combination of the
 
-636
-00:41:51,913 --> 00:41:54,128
+635
+00:41:51,184 --> 00:41:53,399
 data point z and the location x.
 
-637
-00:41:54,288 --> 00:41:56,636
+636
+00:41:53,559 --> 00:41:55,906
 The coefficients depend only on time.
 
-638
-00:41:58,256 --> 00:42:00,714
+637
+00:41:57,526 --> 00:41:59,985
 The conditional score has the same form.
 
-639
-00:42:00,874 --> 00:42:07,090
+638
+00:42:00,145 --> 00:42:06,442
 Split the fraction, and you get one coefficient
-multiplying x and another one multiplying z.
+multiplying z and another one multiplying x.
 
-640
-00:42:07,250 --> 00:42:12,947
-Again a linear combination of x and z, with
+639
+00:42:06,602 --> 00:42:12,475
+Again a linear combination of z and x, with
 coefficients that depend only on time.
 
-641
-00:42:14,567 --> 00:42:19,029
+640
+00:42:14,095 --> 00:42:18,557
 The coefficients in the two formulas are
 different, but that is not the point.
 
-642
-00:42:19,189 --> 00:42:22,381
+641
+00:42:18,717 --> 00:42:21,909
 The point is that both
 objects are linear in x and z.
 
-643
-00:42:22,541 --> 00:42:26,330
+642
+00:42:22,069 --> 00:42:25,857
 So we can solve one formula for
 z, substitute it into the other,
 
-644
-00:42:26,330 --> 00:42:29,292
+643
+00:42:25,857 --> 00:42:28,819
 and express the vector
 field through the score.
 
-645
-00:42:29,812 --> 00:42:32,082
+644
+00:42:29,339 --> 00:42:31,610
 The result is the formula in the middle.
 
-646
-00:42:32,242 --> 00:42:37,684
+645
+00:42:31,770 --> 00:42:37,212
 The conditional vector field equals a
 time-dependent factor times the conditional
 
-647
-00:42:37,684 --> 00:42:40,686
+646
+00:42:37,212 --> 00:42:40,214
 score, plus alpha dot over alpha, times x.
 
-648
-00:42:41,206 --> 00:42:43,510
+647
+00:42:40,734 --> 00:42:43,038
 Train one, and you get the other for free.
 
-649
-00:42:45,130 --> 00:42:48,847
+648
+00:42:44,658 --> 00:42:48,375
 The same relation holds
 after marginalizing over z.
 
-650
-00:42:49,007 --> 00:42:52,245
+649
+00:42:48,535 --> 00:42:51,773
 Averaging with the posterior
 is a linear operation,
 
-651
-00:42:52,245 --> 00:42:54,965
+650
+00:42:51,773 --> 00:42:54,493
 and the coefficients do not depend on z.
 
-652
-00:42:55,485 --> 00:42:58,333
+651
+00:42:55,013 --> 00:42:57,861
 For the networks this means
 that one of them is enough.
 
-653
-00:42:58,493 --> 00:43:03,127
+652
+00:42:58,021 --> 00:43:02,655
 Train a score network and compute the vector
 field from it, or the other way round.
 
-654
-00:43:03,647 --> 00:43:07,821
+653
+00:43:03,175 --> 00:43:07,348
 And once more: the code only ever
 uses the conditional formulas.
 
-655
-00:43:07,981 --> 00:43:13,073
+654
+00:43:07,508 --> 00:43:12,600
 The marginal objects appear implicitly,
 through averaging over a large dataset.
 
-656
-00:43:14,693 --> 00:43:16,298
+655
+00:43:14,220 --> 00:43:15,826
 Three closing remarks.
 
-657
-00:43:16,458 --> 00:43:18,197
+656
+00:43:15,986 --> 00:43:17,725
 First, time conventions.
 
-658
-00:43:18,357 --> 00:43:21,810
+657
+00:43:17,885 --> 00:43:21,338
 Here, noise sits at time
 zero and data at time one.
 
-659
-00:43:21,970 --> 00:43:25,886
+658
+00:43:21,498 --> 00:43:25,414
 Much of the diffusion literature
 uses the opposite convention,
 
-660
-00:43:25,886 --> 00:43:28,593
+659
+00:43:25,414 --> 00:43:28,120
 so check this whenever you read a paper.
 
-661
-00:43:29,113 --> 00:43:30,315
+660
+00:43:28,640 --> 00:43:29,843
 Second, history.
 
-662
-00:43:30,475 --> 00:43:36,384
+661
+00:43:30,003 --> 00:43:35,911
 Diffusion models were first described as
 discrete chains of noising and denoising steps.
 
-663
-00:43:36,544 --> 00:43:40,681
+662
+00:43:36,071 --> 00:43:40,208
 This tutorial used the continuous
 view with differential equations,
 
-664
-00:43:40,681 --> 00:43:44,257
+663
+00:43:40,208 --> 00:43:43,785
 which is more compact and
 covers flow matching as well.
 
-665
-00:43:44,777 --> 00:43:48,835
+664
+00:43:44,305 --> 00:43:48,363
 Third, the starting distribution
 does not have to be Gaussian noise.
 
-666
-00:43:48,995 --> 00:43:54,467
+665
+00:43:48,523 --> 00:43:53,994
 The framework can transport one distribution
 into another: video without sound into
 
-667
-00:43:54,467 --> 00:43:59,674
+666
+00:43:53,994 --> 00:43:59,202
 video with sound, low resolution data
 into high resolution data, or a partially
 
-668
-00:43:59,674 --> 00:44:02,293
+667
+00:43:59,202 --> 00:44:01,821
 hidden scene into the complete scene.
 
+668
+00:44:03,441 --> 00:44:08,940
+The deck builds on the MIT course on
+flow matching and diffusion models,
+
 669
-00:44:03,913 --> 00:44:09,588
-The deck builds on the MIT course on flow
-matching and diffusion models and its
+00:44:08,940 --> 00:44:14,057
+in its 2025 and 2026 editions, on
+the lecture notes of that course,
 
 670
-00:44:09,588 --> 00:44:14,437
-lecture notes, and on the NeurIPS
-2024 tutorial on flow matching.
+00:44:14,057 --> 00:44:18,056
+and on the NeurIPS 2024
+tutorial on flow matching.
 
 671
-00:44:14,597 --> 00:44:19,124
+00:44:18,216 --> 00:44:22,743
 All links are on this slide, together
 with a code library and an interactive
 
 672
-00:44:19,124 --> 00:44:21,686
+00:44:22,743 --> 00:44:25,305
 visualization that is well worth trying.
 
 673
-00:44:23,306 --> 00:44:27,346
+00:44:26,925 --> 00:44:30,965
 A fourth chapter, on conditional
 generation, guidance and prompts,
 
 674
-00:44:27,346 --> 00:44:28,995
+00:44:30,965 --> 00:44:32,614
 is still in preparation.
 
 675
-00:44:29,155 --> 00:44:30,618
+00:44:32,774 --> 00:44:34,236
 Thank you for watching.

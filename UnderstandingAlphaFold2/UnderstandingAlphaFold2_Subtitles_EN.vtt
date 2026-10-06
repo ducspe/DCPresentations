@@ -1092,305 +1092,326 @@ A second, fine-tuning
 phase adds two more terms.
 
 231
-00:13:46.157 --> 00:13:49.500
-The experimentally resolved loss deals
-with regions that are floppy
+00:13:46.157 --> 00:13:49.739
+Not every atom has experimentally
+determined coordinates.
 
 232
-00:13:49.567 --> 00:13:54.774
-or disordered, and never show up
-clearly in X-ray or cryo-EM data.
+00:13:49.806 --> 00:13:52.914
+So AlphaFold 2 also predicts,
+for each atom,
 
 233
-00:13:54.841 --> 00:13:56.999
-It would be unfair to penalize the model
+00:13:52.981 --> 00:13:57.463
+whether it was experimentally resolved,
+and this loss trains that prediction.
 
 234
-00:13:57.066 --> 00:14:00.339
-where even nature has not settled
-on a fixed position.
+00:13:57.530 --> 00:13:59.758
+Missing coordinates
+are handled separately:
 
 235
-00:14:00.589 --> 00:14:05.447
-The violation loss enforces basic
-chemistry: no two atoms in the same place,
+00:13:59.825 --> 00:14:04.052
+the structural losses simply ignore
+comparisons that would need them.
 
 236
-00:14:05.514 --> 00:14:08.715
-no impossible bond lengths
-or backbone angles.
+00:14:04.302 --> 00:14:06.890
+A prediction can have
+the right overall shape
 
 237
-00:14:08.782 --> 00:14:11.810
-Think of it as a spell checker
-at the atomic level.
+00:14:06.957 --> 00:14:10.125
+and still contain
+unrealistic local geometry.
 
 238
-00:14:11.877 --> 00:14:16.927
-It gets a high weight of 1.0, because
-these violations are non-negotiable.
+00:14:10.191 --> 00:14:13.930
+The violation loss penalizes atoms
+that come too close together,
 
 239
-00:14:18.517 --> 00:14:20.713
-Which of these ingredients really matter?
+00:14:13.996 --> 00:14:19.001
+known as steric clashes, as well
+as incorrect bond lengths and bond angles.
 
 240
-00:14:20.779 --> 00:14:24.338
+00:14:19.067 --> 00:14:22.896
+During fine-tuning, it encourages
+chemically plausible structures,
+
+241
+00:14:22.962 --> 00:14:26.127
+even in regions without
+experimental coordinates.
+
+242
+00:14:26.194 --> 00:14:29.943
+These are soft penalties,
+so some violations can still remain.
+
+243
+00:14:31.550 --> 00:14:33.746
+Which of these ingredients really matter?
+
+244
+00:14:33.813 --> 00:14:37.371
 The ablation study in the paper
 removes them one at a time,
 
-241
-00:14:24.404 --> 00:14:28.074
+245
+00:14:37.438 --> 00:14:41.107
 and measures the change
 in accuracy compared with the baseline.
 
-242
-00:14:28.141 --> 00:14:30.729
+246
+00:14:41.174 --> 00:14:43.762
 Most single removals cost a few points.
 
-243
-00:14:30.796 --> 00:14:34.769
+247
+00:14:43.829 --> 00:14:47.803
 No single trick explains the result.
 It is the combination.
 
-244
-00:14:36.383 --> 00:14:39.127
+248
+00:14:49.417 --> 00:14:52.160
 The largest drop
 by far comes from removing
 
-245
-00:14:39.193 --> 00:14:42.159
+249
+00:14:52.227 --> 00:14:55.192
 Invariant Point Attention
 and recycling together.
 
-246
-00:14:42.409 --> 00:14:44.497
+250
+00:14:55.442 --> 00:14:57.530
 Without the geometric
 term in the attention,
 
-247
-00:14:44.564 --> 00:14:48.547
+251
+00:14:57.597 --> 00:15:01.580
 and without iterative refinement,
 accuracy drops sharply.
 
-248
-00:14:48.797 --> 00:14:51.145
+252
+00:15:01.830 --> 00:15:04.178
 Reasoning directly in 3D space,
 
-249
-00:14:51.212 --> 00:14:54.188
+253
+00:15:04.245 --> 00:15:07.221
 combined with refinement,
 is the heart of the model.
 
-250
-00:14:55.283 --> 00:14:59.779
+254
+00:15:08.317 --> 00:15:12.812
 AlphaFold 2 showed what is possible.
 OpenFold lets us study why.
 
-251
-00:15:01.383 --> 00:15:06.668
+255
+00:15:14.417 --> 00:15:19.701
 OpenFold is a faithful, trainable
 reproduction of AlphaFold 2 in PyTorch.
 
-252
-00:15:06.918 --> 00:15:09.096
+256
+00:15:19.951 --> 00:15:22.130
 What sets it apart
 is that the training code
 
-253
-00:15:09.163 --> 00:15:11.796
+257
+00:15:22.196 --> 00:15:24.830
 and the alignment data
 are openly available,
 
-254
-00:15:11.863 --> 00:15:14.443
+258
+00:15:24.896 --> 00:15:27.476
 so the model can actually be retrained.
 
-255
-00:15:14.693 --> 00:15:18.975
+259
+00:15:27.726 --> 00:15:32.008
 That turns AlphaFold from a result
 into an experimental system.
 
-256
-00:15:20.583 --> 00:15:23.072
+260
+00:15:33.617 --> 00:15:36.105
 A practical tip. To explore the code,
 
-257
-00:15:23.138 --> 00:15:27.809
+261
+00:15:36.172 --> 00:15:40.843
 append the GitHub user name and
 repository name to the DeepWiki address.
 
-258
-00:15:28.059 --> 00:15:30.488
+262
+00:15:41.093 --> 00:15:43.521
 You can then ask questions
 in plain language,
 
-259
-00:15:30.554 --> 00:15:34.288
+263
+00:15:43.588 --> 00:15:47.321
 for example where and how
 the triangle inequality is enforced,
 
-260
-00:15:34.354 --> 00:15:36.715
+264
+00:15:47.388 --> 00:15:49.748
 and get answers linked to the source.
 
-261
-00:15:38.317 --> 00:15:39.855
+265
+00:15:51.350 --> 00:15:52.888
 Does the reproduction hold up?
 
-262
-00:15:39.922 --> 00:15:44.732
+266
+00:15:52.955 --> 00:15:57.765
 On CAMEO targets, the two models
 land almost exactly on the diagonal.
 
-263
-00:15:44.982 --> 00:15:51.589
+267
+00:15:58.015 --> 00:16:04.623
 The mean scores are 0.911
 for OpenFold and 0.913 for AlphaFold.
 
-264
-00:15:53.183 --> 00:15:55.652
+268
+00:16:06.217 --> 00:16:08.685
 Because we can retrain it,
 we can watch it learn.
 
-265
-00:15:55.718 --> 00:15:58.212
+269
+00:16:08.752 --> 00:16:11.245
 The curve shoots up almost immediately.
 
-266
-00:15:58.462 --> 00:16:01.530
+270
+00:16:11.495 --> 00:16:14.564
 The model reaches 90 percent
 of its final accuracy
 
-267
-00:16:01.597 --> 00:16:03.986
+271
+00:16:14.630 --> 00:16:17.019
 in only 3 percent of the training time.
 
-268
-00:16:04.053 --> 00:16:05.796
+272
+00:16:17.086 --> 00:16:18.829
 The rest is slow polishing.
 
-269
-00:16:07.383 --> 00:16:10.305
+273
+00:16:20.417 --> 00:16:23.338
 And now the experiment
 that connects back to our title.
 
-270
-00:16:10.371 --> 00:16:13.416
+274
+00:16:23.405 --> 00:16:26.449
 What happens if you train
 on deliberately reduced data?
 
-271
-00:16:13.666 --> 00:16:16.454
+275
+00:16:26.699 --> 00:16:29.488
 With only around 15 percent
 of the protein chains,
 
-272
-00:16:16.521 --> 00:16:19.548
+276
+00:16:29.554 --> 00:16:32.581
 the curve ends up close
 to the full-data model.
 
-273
-00:16:19.798 --> 00:16:22.936
+277
+00:16:32.831 --> 00:16:35.970
 Even with less than one percent,
 about a thousand chains,
 
-274
-00:16:23.003 --> 00:16:25.509
+278
+00:16:36.036 --> 00:16:38.543
 the model still gets
 most of the way there.
 
-275
-00:16:27.117 --> 00:16:28.925
+279
+00:16:40.150 --> 00:16:41.958
 Why does so little data go so far?
 
-276
-00:16:28.992 --> 00:16:32.790
+280
+00:16:42.025 --> 00:16:45.823
 Because protein fold space is rich,
 but still constrained.
 
-277
-00:16:32.857 --> 00:16:35.565
+281
+00:16:45.890 --> 00:16:48.598
 Structures fall
 into a limited number of classes,
 
-278
-00:16:35.632 --> 00:16:39.571
+282
+00:16:48.665 --> 00:16:52.604
 architectures and folds,
 which are reused again and again.
 
-279
-00:16:39.821 --> 00:16:42.913
+283
+00:16:52.854 --> 00:16:55.946
 Nature is parsimonious
 in the structures it allows.
 
-280
-00:16:42.979 --> 00:16:45.968
+284
+00:16:56.013 --> 00:16:59.001
 A model with the right
 inductive biases can pick up
 
-281
-00:16:46.034 --> 00:16:49.331
+285
+00:16:59.068 --> 00:17:02.364
 these regularities
 from surprisingly few examples.
 
-282
-00:16:50.417 --> 00:16:52.160
+286
+00:17:03.450 --> 00:17:05.193
 So, what should you take home?
 
-283
-00:16:52.410 --> 00:16:55.328
+287
+00:17:05.443 --> 00:17:08.362
 One: AlphaFold 2 turned protein folding
 
-284
-00:16:55.395 --> 00:16:58.164
+288
+00:17:08.428 --> 00:17:11.197
 into a learnable geometric
 reasoning problem.
 
-285
-00:16:58.414 --> 00:17:02.282
+289
+00:17:11.447 --> 00:17:15.316
 Two: its success came
 from combining co-evolution in 1D,
 
-286
-00:17:02.349 --> 00:17:07.560
+290
+00:17:15.382 --> 00:17:20.593
 pairwise reasoning in 2D, and triangle
 and equivariant updates in 3D.
 
-287
-00:17:07.810 --> 00:17:11.488
+291
+00:17:20.843 --> 00:17:24.522
 Three: the architecture works
 because its inductive biases
 
-288
-00:17:11.555 --> 00:17:13.863
+292
+00:17:24.588 --> 00:17:26.896
 match the biology and the geometry.
 
-289
-00:17:14.113 --> 00:17:17.261
+293
+00:17:27.146 --> 00:17:30.294
 And four: confidence prediction
 and reproducibility
 
-290
-00:17:17.328 --> 00:17:19.653
+294
+00:17:30.361 --> 00:17:32.687
 made the approach scientifically useful.
 
-291
-00:17:20.750 --> 00:17:25.298
+295
+00:17:33.783 --> 00:17:38.332
 All sources are listed here, including the
 lecture series this material builds on,
 
-292
-00:17:25.365 --> 00:17:29.879
+296
+00:17:38.398 --> 00:17:42.913
 the AlphaFold and OpenFold papers,
 and the Nobel Prize talk.
 
-293
-00:17:29.946 --> 00:17:32.436
+297
+00:17:42.979 --> 00:17:45.469
 Pause the video if you
 want to note them down.
 
-294
-00:17:33.550 --> 00:17:36.531
+298
+00:17:46.583 --> 00:17:49.564
 Thank you for watching.
 Questions are very welcome.

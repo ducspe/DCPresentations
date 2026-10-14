@@ -1,0 +1,13 @@
+# DC Presentations
+
+This repository contains miscellaneous presentations on a variety of topics. PDFs can be viewed quickly in your browser. PowerPoint (PPTX) files must be downloaded to view; their speaker notes include paper references and other useful URLs related to the slide content, which are not visible in the PDF version.
+
+**[Watch video tutorials online](https://ducspe.github.io/DCPresentations/)** in your browser. If you have trouble playing a video online, download the MP4 using the links below and open it in your preferred video player. Where provided, English subtitles are linked as separate SRT files that you can load in your video player.
+
+## Currently available presentations
+
+- **AlphaFold 2 (June 2026):** Explores how AlphaFold 2 predicts protein structures and how biological and geometric knowledge shape its neural network architecture. Covers the main model components, training, and insights from OpenFold about the role of architecture and data. Available as [PDF](UnderstandingAlphaFold2/UnderstandingAlphaFold2.pdf), [PowerPoint](UnderstandingAlphaFold2/UnderstandingAlphaFold2.pptx), and [video tutorial (MP4)](UnderstandingAlphaFold2/UnderstandingAlphaFold2_VideoTutorial.mp4), with [English subtitles (SRT)](UnderstandingAlphaFold2/UnderstandingAlphaFold2_Subtitles_EN.srt) for the video.
+
+- **Understanding Diffusion (September 2026):** Connects the mathematical foundations of flow and diffusion models with practical training algorithms. Covers ordinary and stochastic differential equations, the relationship between conditional and marginal probability paths, and conditional flow matching and denoising score matching. Available as [PDF](UnderstandingDiffusion/UnderstandingDiffusion.pdf), [PowerPoint](UnderstandingDiffusion/UnderstandingDiffusion.pptx), and [video tutorial (MP4)](UnderstandingDiffusion/UnderstandingDiffusion_VideoTutorial.mp4), with [English subtitles (SRT)](UnderstandingDiffusion/UnderstandingDiffusion_Subtitles_EN.srt) for the video.
+
+- **Understanding Tokenization (October 2026):** Explains how language models turn text into tokens and why tokenization affects numbers, languages, and source code. Covers byte pair encoding (BPE), UTF-8, regex pre-tokenization, and special tokens, with examples from tiktoken and SentencePiece. Available as [PDF](UnderstandingTokenization/UnderstandingTokenization.pdf), [PowerPoint](UnderstandingTokenization/UnderstandingTokenization.pptx), and [video tutorial (MP4)](UnderstandingTokenization/UnderstandingTokenization_VideoTutorial.mp4), with [English subtitles (SRT)](UnderstandingTokenization/UnderstandingTokenization_Subtitles_EN.srt) for the video.
